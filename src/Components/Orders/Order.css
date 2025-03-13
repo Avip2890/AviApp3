@@ -1,0 +1,61 @@
+/* עיצוב כללי */
+.orders-container {
+    max-width: 800px;
+    margin: auto;
+    padding: 20px;
+    background-color: #f9f9f9;
+    border-radius: 8px;
+}
+
+.orders-title {
+    text-align: center;
+    font-size: 24px;
+    font-weight: bold;
+    margin-bottom: 20px;
+}
+
+.orders-loading {
+    display: block;
+    margin: 20px auto;
+}
+
+.orders-error {
+    color: red;
+    text-align: center;
+    font-size: 18px;
+}
+
+.orders-no-data {
+    text-align: center;
+    color: gray;
+}
+
+.orders-paper {
+    padding: 15px;
+    background: white;
+    border-radius: 8px;
+    box-shadow: 2px 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.orders-list {
+    list-style-type: none;
+    padding: 0;
+}
+
+.order-item {
+    padding: 10px;
+    border-bottom: 1px solid #ddd;
+}
+
+.order-primary {
+    font-size: 18px;
+    font-weight: bold;
+    color: #333;
+}
+
+.order-secondary {
+    font-size: 14px;
+    color: #555;
+    display: block;
+    margin-top: 5px;
+}

@@ -1,0 +1,82 @@
+/* עיצוב מיכל ראשי */
+.menu-container {
+    max-width: 800px;
+    margin: auto;
+    text-align: center;
+}
+
+/* כותרת הדף */
+.menu-title {
+    font-size: 2rem;
+    font-weight: bold;
+    color: #333;
+    margin-bottom: 20px;
+}
+
+/* טעינה */
+.menu-loading {
+    display: block;
+    margin: 20px auto;
+}
+
+/* הודעות שגיאה */
+.menu-error, .menu-no-data {
+    color: red;
+    font-weight: bold;
+    margin-top: 20px;
+}
+
+/* עיצוב הקופסה של הרשימה */
+.menu-paper {
+    padding: 20px;
+    border-radius: 8px;
+}
+
+/* פריטי הרשימה */
+.menu-item {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    padding: 15px 20px;
+}
+
+/* שם הפריט */
+.menu-item-name {
+    font-size: 1.2rem;
+    font-weight: bold;
+    color: #2c3e50;
+}
+
+/* תיאור הפריט */
+.menu-item-description {
+    font-size: 0.95rem;
+    color: #555;
+    margin-top: 5px;
+}
+
+/* מחיר הפריט */
+.menu-item-price {
+    font-size: 1rem;
+    font-weight: bold;
+    color: #27ae60;
+    margin-top: 5px;
+}
+
+/* מיכל המחיר והסטטוס */
+.menu-item-status {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-top: 10px;
+}
+
+/* עיצוב הסטטוס */
+.available-chip {
+    background-color: #4caf50 !important;
+    color: white !important;
+}
+
+.unavailable-chip {
+    background-color: #e74c3c !important;
+    color: white !important;
+}

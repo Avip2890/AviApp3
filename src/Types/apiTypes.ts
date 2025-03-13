@@ -38,7 +38,7 @@ export interface RoleDto {
 
 export interface UserDto {
     id?: number;
-    Name: string;
+    name: string;
     password: string;
     email: string;
     createdAt?: string;

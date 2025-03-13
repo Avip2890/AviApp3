@@ -10,6 +10,7 @@ import SignUp from "./Components/Signup/SignupComponent.tsx";
 import HomePage from "./Components/Home/HomePageComponent.tsx";
 import MenuPage from "./Components/Menu/MenuComponent.tsx";
 import CreateOrderPage from "./Components/CreateOrder/CreateOrderComponent.tsx";
+import UserManagement from "./Components/UserManagement/UserManagementComponent.tsx";
 
 const App = () => {
     const [isAuthenticated, setIsAuthenticated] = useState<boolean>(false);
@@ -48,8 +49,8 @@ const App = () => {
 
             <Container sx={{ marginTop: 4 }}>
                 <Routes>
-                    <Route path= "/home" element={<HomePage/>}/>
-                    <Route path="/login" element={!isAuthenticated ? <Login /> : <Navigate to="/home" />} />
+                    <Route path= "/" element={<HomePage/>}/>
+                    <Route path="/login" element={!isAuthenticated ? <Login /> : <Navigate to="/" />} />
                     <Route path="/signup" element={<SignUp />} />
                     <Route
                         path="/orders"
@@ -67,10 +68,11 @@ const App = () => {
                                 : <Navigate to="/login" />
                         }
                     />
-                    <Route path="/menuitems" element={<MenuPage/>} />
+                    <Route path="/users" element={<UserManagement/>}/>
+                    <Route path="/menu-items" element={<MenuPage/>} />
                     <Route path="/role-selection" element={isAuthenticated ? <RoleSelection /> : <Navigate to="/login" />} />
                     <Route path="/create-orders" element={<CreateOrderPage/>}/>
-                    <Route path="/home" element={<Navigate to={isAuthenticated ? "/home" : "/login"} />} />
+                    <Route path="/" element={<Navigate to={isAuthenticated ? "/" : "/login"} />} />
                 </Routes>
 
             </Container>

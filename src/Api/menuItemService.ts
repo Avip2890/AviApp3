@@ -3,7 +3,7 @@ import {MenuItemDto} from "../Types/apiTypes.ts";
 
 
 export const getMenuItems = async () => {
-    const response = await apiClient.get("/menuitems");
+    const response = await apiClient.get("/menu-items");
     return response.data;
 };
 
@@ -13,7 +13,19 @@ export const getMenuItemById = async (id: number) => {
 };
 
 export const createMenuItem = async (data: MenuItemDto) => {
-    const response = await apiClient.post("/menuitems", data);
+    const token = localStorage.getItem("token");
+
+    if (!token) {
+        throw new Error("❌ אין טוקן - המשתמש אינו מחובר");
+    }
+
+    const response = await apiClient.post("/create-menu-items", data, {
+        headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json"
+        }
+    });
+
     return response.data;
 };
 

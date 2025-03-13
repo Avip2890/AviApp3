@@ -1,11 +1,18 @@
 import { useEffect, useState } from "react";
-import { Typography, Container, Paper, List, ListItem, ListItemText, CircularProgress, Button, Dialog, DialogTitle, DialogContent, TextField, DialogActions } from "@mui/material";
+import {
+    Typography, Container, Paper, List, ListItem, ListItemText, CircularProgress,
+    Button, Dialog, DialogTitle, DialogContent, TextField, DialogActions, FormControl,
+    InputLabel, Select, MenuItem, SelectChangeEvent
+} from "@mui/material";
 import { getOrders, updateOrder, deleteOrder } from "../../Api/orderService.ts";
-import { OrderDto } from "../../Types/apiTypes.ts";
+import { getMenuItems } from "../../Api/menuItemService.ts";
+import { OrderDto, MenuItemDto } from "../../Types/apiTypes.ts";
 import "./Order.css";
+import * as React from "react";
 
 const Orders = () => {
     const [orders, setOrders] = useState<OrderDto[]>([]);
+    const [menuItems, setMenuItems] = useState<MenuItemDto[]>([]);
     const [loading, setLoading] = useState<boolean>(true);
     const [error, setError] = useState<string | null>(null);
     const [editingOrder, setEditingOrder] = useState<OrderDto | null>(null);
@@ -15,23 +22,25 @@ const Orders = () => {
     useEffect(() => {
         const role = localStorage.getItem("selectedRole");
         setUserRole(role);
-    }, []);
 
-    useEffect(() => {
-        const fetchOrders = async () => {
+        const fetchData = async () => {
             try {
                 setLoading(true);
                 setError(null);
-                const ordersData = await getOrders();
+
+                // מביא את ההזמנות והתפריט
+                const [ordersData, menuData] = await Promise.all([getOrders(), getMenuItems()]);
+
                 setOrders(ordersData);
+                setMenuItems(menuData);
             } catch (error) {
-                console.error(error);
-                setError("❌ לא ניתן לטעון את ההזמנות.");
+                setError("❌ לא ניתן לטעון נתונים: " + error);
             } finally {
                 setLoading(false);
             }
         };
-        fetchOrders();
+
+        fetchData();
     }, []);
 
     const handleDelete = async (id: number) => {
@@ -39,12 +48,12 @@ const Orders = () => {
             await deleteOrder(id);
             setOrders((prevOrders) => prevOrders.filter(order => order.id !== id));
         } catch (error) {
-            console.error(error);
+            setError("❌ לא ניתן למחוק את ההזמנה: " + error);
         }
     };
 
     const handleEdit = (order: OrderDto) => {
-        setEditingOrder(order);
+        setEditingOrder({ ...order, orderMenuItems: order.orderMenuItems ?? [] }); // הבטחת רשימה ריקה במקום undefined
         setOpenEditDialog(true);
     };
 
@@ -54,16 +63,47 @@ const Orders = () => {
         }
     };
 
-    const handleEditSave = async () => {
+    const handleMenuItemChange = (event: SelectChangeEvent<number[]>) => {
         if (editingOrder) {
-            try {
-                await updateOrder(editingOrder.id ?? 0, editingOrder);
-                setOrders((prevOrders) => prevOrders.map(order => order.id === editingOrder.id ? editingOrder : order));
-                setOpenEditDialog(false);
-                setEditingOrder(null);
-            } catch (error) {
-                console.error(error);
-            }
+            setEditingOrder({
+                ...editingOrder,
+                orderMenuItems: (event.target.value as number[]).map((id) => ({
+                    orderId: editingOrder.id ?? 0,
+                    menuItemId: id,
+                })),
+            });
+        }
+    };
+
+    const handleEditSave = async () => {
+        if (!editingOrder || editingOrder.id === undefined) {
+            setError("❌ שגיאה: ההזמנה לעריכה לא תקינה.");
+            return;
+        }
+
+        if (!editingOrder.customerName || !editingOrder.phone || !editingOrder.orderDate) {
+            setError("❌ שגיאה: כל השדות חייבים להיות מלאים.");
+            return;
+        }
+
+        if (!editingOrder.orderMenuItems || editingOrder.orderMenuItems.length === 0) {
+            setError("❌ שגיאה: ההזמנה חייבת לכלול לפחות פריט אחד.");
+            return;
+        }
+
+        try {
+            await updateOrder(editingOrder.id, editingOrder);
+
+            setOrders((prevOrders) =>
+                prevOrders.map(order =>
+                    order.id === editingOrder.id ? { ...order, ...editingOrder } : order
+                )
+            );
+
+            setOpenEditDialog(false);
+            setEditingOrder(null);
+        } catch (error) {
+            setError("❌ שגיאה בעדכון הזמנה: " + error);
         }
     };
 
@@ -90,6 +130,12 @@ const Orders = () => {
                                             <Typography variant="body2" component="span" className="order-secondary">📅 תאריך: {new Date(order.orderDate).toLocaleDateString()}</Typography>
                                             <br />
                                             <Typography variant="body2" component="span" className="order-secondary">📞 טלפון: {order.phone || "לא זמין"}</Typography>
+                                            <br />
+                                            <Typography variant="body2" component="span" className="order-secondary">
+                                                📋 פריטים: {order.orderMenuItems?.map(item =>
+                                                menuItems.find(menu => menu.id === item.menuItemId)?.name || "לא ידוע"
+                                            ).join(", ")}
+                                            </Typography>
                                         </>
                                     }
                                 />
@@ -124,6 +170,29 @@ const Orders = () => {
                         fullWidth
                         margin="dense"
                     />
+                    <TextField
+                        label="תאריך הזמנה"
+                        name="orderDate"
+                        type="date"
+                        value={editingOrder?.orderDate?.split("T")[0] || ""}
+                        onChange={handleEditChange}
+                        fullWidth
+                        margin="dense"
+                        InputLabelProps={{ shrink: true }}
+                    />
+                    <FormControl fullWidth margin="dense">
+                        <InputLabel>בחר פריטים</InputLabel>
+                        <Select
+                            multiple
+                            value={editingOrder?.orderMenuItems?.map(item => item.menuItemId) ?? []}
+                            onChange={handleMenuItemChange}
+                            renderValue={(selected) => menuItems.filter(item => selected.includes(item.id!)).map(item => item.name).join(", ")}
+                        >
+                            {menuItems.map((item) => (
+                                <MenuItem key={item.id} value={item.id!}>{item.name}</MenuItem>
+                            ))}
+                        </Select>
+                    </FormControl>
                 </DialogContent>
                 <DialogActions>
                     <Button onClick={() => setOpenEditDialog(false)} color="secondary">ביטול</Button>

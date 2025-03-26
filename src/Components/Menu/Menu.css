@@ -79,3 +79,11 @@
 .menu-item-actions button {
     font-size: 0.9rem;
 }
+
+.menu-item-image {
+    width: 200px;
+    height: 200px;
+    object-fit: cover;
+    border-radius: 8px;
+    margin-inline-end: 16px;
+}

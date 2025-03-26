@@ -1,28 +1,32 @@
 import { useEffect, useState } from "react";
-import { Container, Typography, TextField, Button, MenuItem, Select, FormControl, InputLabel, CircularProgress } from "@mui/material";
-import { createOrder } from "../../Api/orderService.ts";
-import { OrderDto, MenuItemDto } from "../../Types/apiTypes.ts";
-import "./CreateOrder.css";
-import {getMenuItems} from "../../Api/menuItemService.ts";
+import {
+    Container, Typography, TextField, Button, MenuItem,
+    Select, FormControl, InputLabel, CircularProgress
+} from "@mui/material";
+import { OrderApi, MenuItemApi, MenuItemDto, OrderDto } from "../../open-api";
 import * as React from "react";
 
 const CreateOrderPage = () => {
-    const [customerName, setCustomerName] = useState("");
-    const [phone, setPhone] = useState("");
-    const [orderDate, setOrderDate] = useState("");
+    const [customerName, setCustomerName] = useState<string>("");
+    const [phone, setPhone] = useState<string>("");
+    const [orderDate, setOrderDate] = useState<string>("");
     const [menuItems, setMenuItems] = useState<MenuItemDto[]>([]);
     const [selectedMenuItems, setSelectedMenuItems] = useState<number[]>([]);
     const [loading, setLoading] = useState<boolean>(false);
     const [error, setError] = useState<string | null>(null);
     const [success, setSuccess] = useState<string | null>(null);
 
+    const menuItemApi = new MenuItemApi();
+    const orderApi = new OrderApi();
+
     useEffect(() => {
         const fetchMenuItems = async () => {
             try {
-                const data = await getMenuItems();
-                setMenuItems(data);
+                const response = await menuItemApi.getMenuItems();
+                setMenuItems(response.data as MenuItemDto[]); // ✅ הגדרת הטיפוס
             } catch (err) {
                 console.error("❌ שגיאה בטעינת התפריט:", err);
+                setError("❌ לא ניתן לטעון את התפריט.");
             }
         };
         fetchMenuItems();
@@ -48,20 +52,30 @@ const CreateOrderPage = () => {
             orderMenuItems: selectedMenuItems.map((id) => ({ orderId: 0, menuItemId: id })),
         };
 
+        console.log("📡 שולח בקשה ליצירת הזמנה:", orderData);
+
         try {
-            await createOrder(orderData);
+            const response = await orderApi.addOrder({ orderDto: orderData });
+
+            console.log("✅ הזמנה נוצרה בהצלחה:", response);
             setSuccess("✅ ההזמנה נוצרה בהצלחה!");
             setCustomerName("");
             setPhone("");
             setOrderDate("");
             setSelectedMenuItems([]);
         } catch (err) {
-            console.error("❌ שגיאה ביצירת הזמנה:", err);
-            setError("❌ לא ניתן ליצור את ההזמנה.");
+            if (err instanceof Error) {
+                console.error("❌ שגיאה ביצירת הזמנה:", err.message);
+            } else {
+                console.error("❌ שגיאה בלתי צפויה:", err);
+            }
+
+            setError("❌ לא ניתן ליצור את ההזמנה. בדוק את הנתונים ונסה שוב.");
         } finally {
             setLoading(false);
         }
     };
+
 
     return (
         <Container className="create-order-container">
@@ -93,7 +107,7 @@ const CreateOrderPage = () => {
                     onChange={(e) => setOrderDate(e.target.value)}
                     fullWidth
                     margin="normal"
-                    InputLabelProps={{ shrink: true }}
+
                 />
 
                 <FormControl fullWidth margin="normal">
@@ -102,10 +116,15 @@ const CreateOrderPage = () => {
                         multiple
                         value={selectedMenuItems}
                         onChange={(e) => setSelectedMenuItems(e.target.value as number[])}
-                        renderValue={(selected) => menuItems.filter(item => selected.includes(item.id!)).map(item => item.name).join(", ")}
+                        renderValue={(selected) =>
+                            menuItems
+                                .filter(menuItem => selected.includes(menuItem.id!))
+                                .map(menuItem => menuItem.name)
+                                .join(", ")
+                        }
                     >
-                        {menuItems.map((item) => (
-                            <MenuItem key={item.id} value={item.id!}>{item.name}</MenuItem>
+                        {menuItems.map((menuItem) => (
+                            <MenuItem key={menuItem.id} value={menuItem.id!}>{menuItem.name}</MenuItem>
                         ))}
                     </Select>
                 </FormControl>

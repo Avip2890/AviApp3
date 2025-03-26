@@ -1,33 +1,48 @@
-import {  useState } from "react";
+import { useState } from "react";
 import {
     Typography, Box, Stack, Card, CardContent, Button,
     Dialog, DialogTitle, DialogContent, TextField, DialogActions,
     FormControl, InputLabel, Select, MenuItem, CircularProgress
 } from "@mui/material";
 import { useNavigate } from "react-router-dom";
-import { createMenuItem } from "../../Api/menuItemService.ts";
-import { MenuItemDto } from "../../Types/apiTypes.ts";
+import { MenuItemApi, MenuItemDto } from "../../open-api";
+import UnsplashImagePicker from "../UnsplashImagePicker/UnsplashImagePickerComponent";
 import "./AdminDashboard.css";
 import * as React from "react";
 
 const AdminDashboard = () => {
     const navigate = useNavigate();
+    const menuItemApi = new MenuItemApi();
     const [openDialog, setOpenDialog] = useState(false);
+    const [editing, setEditing] = useState(false);
     const [menuItem, setMenuItem] = useState<MenuItemDto>({
         name: "",
         description: "",
         price: 0,
-        isAvailable: true
+        isAvailable: true,
+        imageUrl: ""
     });
+
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
     const [success, setSuccess] = useState<string | null>(null);
 
-    const handleOpenDialog = () => setOpenDialog(true);
+    const handleOpenDialog = (editItem?: MenuItemDto) => {
+        if (editItem) {
+            setMenuItem(editItem);
+            setEditing(true);
+        } else {
+            setMenuItem({ name: "", description: "", price: 0, isAvailable: true, imageUrl: "" });
+            setEditing(false);
+        }
+        setOpenDialog(true);
+    };
+
     const handleCloseDialog = () => {
         setOpenDialog(false);
         setError(null);
         setSuccess(null);
+        setEditing(false);
     };
 
     const handleSubmit = async (event: React.FormEvent) => {
@@ -36,51 +51,44 @@ const AdminDashboard = () => {
         setError(null);
         setSuccess(null);
 
-        // ✅ בדיקה אם יש טוקן
-        const token = localStorage.getItem("token");
-        if (!token) {
-            setError("❌ אין טוקן - יש להתחבר מחדש.");
-            setLoading(false);
-            return;
-        }
-
-        // ✅ וידוא שכל השדות מלאים
-        if (!menuItem.name || menuItem.price <= 0) {
+        if (!menuItem.name || menuItem.price === 0) {
             setError("⚠️ חובה להזין שם ומחיר לפריט.");
             setLoading(false);
             return;
         }
 
         try {
-            console.log("📡 שליחת פריט עם טוקן:", token);
-            console.log("📡 נתונים שנשלחים:", menuItem);
-
-            const response = await createMenuItem(menuItem);
-            console.log("✅ תגובת השרת:", response);
-
-            setSuccess("✅ הפריט נוסף בהצלחה!");
-            setMenuItem({ name: "", description: "", price: 0, isAvailable: true });
-        } catch (error) {
-            console.error("❌ שגיאה ביצירת פריט:", error);
-
-            // ✅ הצגת שגיאה מפורטת אם קיימת תגובת שגיאה מהשרת
-            if (error) {
-                setError(`❌ שגיאה:  "לא ניתן להוסיף את הפריט"`+ error);
-            } else {
-                setError("❌ שגיאה כללית - נסה שוב מאוחר יותר.");
+            const token = localStorage.getItem("token");
+            if (!token) {
+                setError("❌ טוקן לא קיים. התחבר מחדש.");
+                return;
             }
+
+            if (editing && menuItem.id) {
+                await menuItemApi.updateMenuItem({ id: menuItem.id, menuItemDto: menuItem }, {
+                    headers: { Authorization: `Bearer ${token}` },
+                });
+                setSuccess("✅ הפריט עודכן בהצלחה!");
+            } else {
+                await menuItemApi.addMenuItem({ menuItemDto: menuItem }, {
+                    headers: { Authorization: `Bearer ${token}` },
+                });
+                setSuccess("✅ הפריט נוסף בהצלחה!");
+            }
+
+            setMenuItem({ name: "", description: "", price: 0, isAvailable: true, imageUrl: "" });
+            setOpenDialog(false);
+        } catch (error) {
+            setError(`❌ שגיאה: הפעולה נכשלה - ${(error as Error).message}`);
         } finally {
             setLoading(false);
         }
     };
 
-
     return (
         <Box className="admin-dashboard">
             <Typography variant="h4" className="dashboard-title">🎛️ לוח ניהול</Typography>
-            <Typography className="dashboard-subtitle">ברוך הבא למערכת הניהול! כאן תוכל לנהל את העסק בקלות.</Typography>
 
-            {/* אזור הסטטיסטיקות */}
             <Stack spacing={3} direction="row" justifyContent="center" className="dashboard-stats">
                 <Card className="dashboard-card">
                     <CardContent>
@@ -108,22 +116,14 @@ const AdminDashboard = () => {
                 </Card>
             </Stack>
 
-            {/* כפתורי ניהול */}
             <Stack spacing={3} direction="row" justifyContent="center" className="dashboard-actions">
-                <Button variant="contained" color="primary" className="dashboard-button" onClick={() => navigate("/orders")}>
-                    📦 ניהול הזמנות
-                </Button>
-                <Button variant="contained" color="secondary" className="dashboard-button" onClick={handleOpenDialog}>
-                    🍽️ ניהול תפריט
-                </Button>
-                <Button variant="contained" color="success" className="dashboard-button" onClick={() => navigate("/users")}>
-                    👥 ניהול משתמשים
-                </Button>
+                <Button variant="contained" color="primary" onClick={() => navigate("/orders")}>📦 ניהול הזמנות</Button>
+                <Button variant="contained" color="secondary" onClick={() => handleOpenDialog()}>🍽️ הוסף פריט</Button>
+                <Button variant="contained" color="success" onClick={() => navigate("/users")}>👥 ניהול משתמשים</Button>
             </Stack>
 
-            {/* דיאלוג להוספת פריט חדש לתפריט */}
-            <Dialog open={openDialog} onClose={handleCloseDialog}>
-                <DialogTitle>🍽️ הוספת פריט חדש לתפריט</DialogTitle>
+            <Dialog open={openDialog} onClose={handleCloseDialog} maxWidth="sm" fullWidth>
+                <DialogTitle>{editing ? "✏️ עריכת פריט תפריט" : "🍽️ הוספת פריט חדש לתפריט"}</DialogTitle>
                 <DialogContent>
                     {error && <Typography color="error">{error}</Typography>}
                     {success && <Typography color="primary">{success}</Typography>}
@@ -145,8 +145,11 @@ const AdminDashboard = () => {
                     <TextField
                         label="מחיר (₪)"
                         type="number"
-                        value={menuItem.price}
-                        onChange={(e) => setMenuItem({ ...menuItem, price: parseFloat(e.target.value) || 0 })}
+                        value={menuItem.price?.toString() || "0"}
+                        onChange={(e) => {
+                            const value = parseFloat(e.target.value);
+                            setMenuItem({ ...menuItem, price: isNaN(value) ? 0 : value });
+                        }}
                         fullWidth
                         margin="dense"
                     />
@@ -160,11 +163,21 @@ const AdminDashboard = () => {
                             <MenuItem value="false">לא זמין</MenuItem>
                         </Select>
                     </FormControl>
+
+                    <Typography variant="subtitle1" sx={{ mt: 2 }}>בחר תמונה </Typography>
+                    <UnsplashImagePicker onSelect={(imageUrl) => setMenuItem(prev => ({ ...prev, imageUrl }))} />
+
+                    {menuItem.imageUrl && (
+                        <Box mt={2}>
+                            <Typography variant="body2">תמונה נבחרת:</Typography>
+                            <img src={menuItem.imageUrl} alt="תמונה נבחרת" className="preview-image" />
+                        </Box>
+                    )}
                 </DialogContent>
                 <DialogActions>
                     <Button onClick={handleCloseDialog} color="secondary">ביטול</Button>
                     <Button onClick={handleSubmit} color="primary" disabled={loading}>
-                        {loading ? <CircularProgress size={20} /> : "📩 שמירה"}
+                        {loading ? <CircularProgress size={20} /> : "📩 הוספה"}
                     </Button>
                 </DialogActions>
             </Dialog>

@@ -24,7 +24,7 @@ const HomePage = () => {
                 <Button
                     variant="contained"
                     className="yellow-button"
-                    onClick={() => navigate("/menu-items")}
+                    onClick={() => navigate("/menuitems")}
                 >
                     🍽️ הצגת תפריט
                 </Button>

@@ -1,8 +1,17 @@
 import { useState } from "react";
 import { TextField, Paper, Typography, Button, Dialog, DialogTitle, DialogActions } from "@mui/material";
 import "./LoginStyle.css";
-import { login } from "../../Api/authService.ts";
 import { useNavigate } from "react-router-dom";
+import { AuthApiFactory } from "../../open-api";
+import * as JwtDecode from "jwt-decode";
+
+
+interface JwtPayloadWithRoles {
+    Id: string;
+    Email: string;
+    'http://schemas.microsoft.com/ws/2008/06/identity/claims/role': string[];
+    exp: number;
+}
 
 const Login = () => {
     const [email, setEmail] = useState("");
@@ -13,26 +22,20 @@ const Login = () => {
 
     const handleLogin = async () => {
         setMessage(null);
-        const response = await login({ email, password });
+        const authApi = AuthApiFactory();
+        try {
+            const response = await authApi.login({loginRequestDto: {email, password}});
+            const token = response.data;
+            localStorage.setItem("token", token);
 
-        if (response.success && response.token && response.user) {
-            localStorage.setItem("token", response.token || "");
-            localStorage.setItem("roles", JSON.stringify(response.user.roles || []));
+            const decodedToken: JwtPayloadWithRoles = JwtDecode.jwtDecode(token);
+            const roles = decodedToken['http://schemas.microsoft.com/ws/2008/06/identity/claims/role'];
+            setUserRoles(Array.isArray(roles) ? roles : [roles]);
 
-            const roles = response.user.roles || [];
-
-            if (roles.includes("Admin") && roles.includes("User")) {
-                setUserRoles(roles);
-            } else {
-                const selectedRole = roles.includes("Admin") ? "Admin" : "User";
-                localStorage.setItem("selectedRole", selectedRole);
-                navigate(selectedRole === "Admin" ? "/admin" : "/orders");
-                window.location.reload(); // רענון עמוד כדי לוודא ניווט תקין
-            }
-        } else {
-            setMessage(`❌ שגיאה: ${response.message || "אירעה שגיאה לא ידועה"}`);
+        } catch (error) {
+            console.log(`❌ שגיאה: ${error || "אירעה שגיאה"}`);
         }
-    };
+    }
 
     const handleRoleSelection = (role: string) => {
         localStorage.setItem("selectedRole", role);

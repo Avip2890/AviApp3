@@ -1,63 +1,53 @@
 import { useState } from "react";
 import { TextField, Paper, Typography, Button, MenuItem } from "@mui/material";
-import { createUser } from "../../Api/userService.ts";
+import { UserApi, UserDto } from "../../open-api";
 import { useNavigate } from "react-router-dom";
 import "../Signup/Signup.css";
-import axios from "axios";
-import {UserDto} from "../../Types/apiTypes.ts";
 
 
 const SignUp = () => {
+    const userApi = new UserApi();
+    const navigate = useNavigate();
+
     const [userName, setUserName] = useState("");
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
     const [message, setMessage] = useState<string | null>(null);
     const [selectedRole, setSelectedRole] = useState("User");
 
-    const navigate = useNavigate();
-
-
     const currentRoles = JSON.parse(localStorage.getItem("roles") || "[]");
     const isAdmin = currentRoles.includes("Admin");
 
+    /** 📌 הרשמת משתמש חדש */
     const handleSignUp = async () => {
         setMessage(null);
 
+        if (!userName || !email || !password) {
+            setMessage("⚠️ יש למלא את כל השדות.");
+            return;
+        }
 
         const roles = isAdmin ? [{ name: selectedRole }] : [{ name: "User" }];
 
-
         const newUser: UserDto = {
-            Name: userName,
+            name: userName,
             email,
             password,
             roles,
         };
 
-
-
         try {
-            await createUser(newUser);
+            await userApi.addUser({ userDto: newUser }); // ✅ שימוש נכון ב-API
             setMessage("✅ ההרשמה הצליחה! ניתן להתחבר כעת.");
             setTimeout(() => navigate("/login"), 2000);
         } catch (error) {
-
-
-            if (axios.isAxiosError(error)) {
-                const responseData = error.response?.data;
-
-                if (responseData?.errors) {
-                    const errorMessages = Object.values(responseData.errors).flat().join("\n");
-                    setMessage(`❌ שגיאה בהרשמה:\n${errorMessages}`);
-                } else {
-                    setMessage("❌ שגיאה בהרשמה. נסה שנית.");
-                }
+            if (error instanceof Error) {
+                setMessage(`❌ שגיאה בהרשמה: ${error.message}`);
             } else {
                 setMessage("❌ שגיאה לא ידועה התרחשה.");
             }
         }
     };
-
 
     return (
         <div className="signup-container">
@@ -92,7 +82,6 @@ const SignUp = () => {
                     onChange={(e) => setEmail(e.target.value)}
                     className="input-field"
                 />
-
 
                 {isAdmin && (
                     <TextField

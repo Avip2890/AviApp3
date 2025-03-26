@@ -1,12 +1,11 @@
 import { useEffect, useState } from "react";
 import {
-    Typography, Container, Paper, List, ListItem, ListItemText,
-    CircularProgress, Chip, Button, Dialog, DialogTitle,
-    DialogContent, TextField, DialogActions
+    Typography, Container, Paper, List, ListItem, ListItemText, CircularProgress,
+    Chip, Button, Dialog, DialogTitle, DialogContent, TextField, DialogActions, Box
 } from "@mui/material";
-import { getMenuItems, updateMenuItem, deleteMenuItem } from "../../Api/menuItemService.ts";
-import { MenuItemDto } from "../../Types/apiTypes.ts";
+import { MenuItemApi, MenuItemDto } from "../../open-api";
 import "./Menu.css";
+import UnsplashImagePicker from "../UnsplashImagePicker/UnsplashImagePickerComponent.tsx";
 
 const MenuPage = () => {
     const [menuItems, setMenuItems] = useState<MenuItemDto[]>([]);
@@ -15,42 +14,43 @@ const MenuPage = () => {
     const [editingItem, setEditingItem] = useState<MenuItemDto | null>(null);
     const [openEditDialog, setOpenEditDialog] = useState<boolean>(false);
     const [isAdmin, setIsAdmin] = useState<boolean>(false);
+    const menuItemApi = new MenuItemApi();
+
+    const getUserRoles = (): string[] => {
+        const token = localStorage.getItem("token");
+        if (!token) return [];
+
+        try {
+            const decodedToken = JSON.parse(atob(token.split(".")[1]));
+            const rolesClaimKey = Object.keys(decodedToken).find(key => key.toLowerCase().includes("role"));
+            const rolesClaim = rolesClaimKey ? decodedToken[rolesClaimKey] : [];
+            return Array.isArray(rolesClaim) ? rolesClaim : [rolesClaim];
+
+        } catch (err) {
+            console.error("❌ שגיאה בפענוח הטוקן:", err);
+            return [];
+        }
+    };
+
+    useEffect(() => {
+        setIsAdmin(getUserRoles().includes("Admin"));
+    }, []);
 
     useEffect(() => {
         const fetchMenuItems = async () => {
             try {
                 setLoading(true);
                 setError(null);
-                const data = await getMenuItems();
-                setMenuItems(data);
+                const response = await menuItemApi.getMenuItems();
+                setMenuItems(response.data);
             } catch (error) {
-                setError("❌ לא ניתן לטעון את התפריט. " + error);
+                setError("❌ לא ניתן לטעון את התפריט. " + (error as Error).message);
             } finally {
                 setLoading(false);
             }
         };
 
         fetchMenuItems();
-
-    }, []);
-
-    useEffect(() => {
-        const token = localStorage.getItem("token");
-        if (token) {
-            try {
-                const decodedToken = JSON.parse(atob(token.split(".")[1]));
-                console.log("🔍 Token Decoded:", decodedToken);
-
-                const rolesClaimKey = Object.keys(decodedToken).find(key => key.toLowerCase().includes("role"));
-                const rolesClaim = rolesClaimKey ? decodedToken[rolesClaimKey] : [];
-
-                const rolesArray = Array.isArray(rolesClaim) ? rolesClaim : [rolesClaim];
-
-                setIsAdmin(rolesArray.includes("Admin"));
-            } catch (err) {
-                console.error("❌ שגיאה בפענוח הטוקן:", err);
-            }
-        }
     }, []);
 
     const handleEdit = (item: MenuItemDto) => {
@@ -58,25 +58,76 @@ const MenuPage = () => {
         setOpenEditDialog(true);
     };
 
-
     const handleEditSave = async () => {
-        if (editingItem && editingItem.id) {
-            try {
-                await updateMenuItem(editingItem.id, editingItem);
-                setMenuItems(prevItems => prevItems.map(item => item.id === editingItem.id ? editingItem : item));
-                setOpenEditDialog(false);
-            } catch (error) {
-                setError("❌ לא ניתן לעדכן את הפריט. " + error);
-            }
+        if (!editingItem || !editingItem.id) {
+            setError("❌ הפריט לא תקין לעריכה.");
+            return;
+        }
+
+        const token = localStorage.getItem("token");
+        if (!token) {
+            setError("❌ אין טוקן. אנא התחבר מחדש.");
+            return;
+        }
+
+        try {
+            console.log("📦 שולח עדכון לפריט:", editingItem);
+
+            await menuItemApi.updateMenuItem({
+                id: editingItem.id,
+                menuItemDto: {
+                    name: editingItem.name,
+                    description: editingItem.description,
+                    price: editingItem.price,
+                    isAvailable: editingItem.isAvailable,
+                    imageUrl: editingItem.imageUrl ?? ""
+                }
+            }, {
+                headers: {
+                    Authorization: `Bearer ${token}`,
+                    "Content-Type": "application/json"
+                }
+            });
+
+            const response = await menuItemApi.getMenuItems();
+            setMenuItems(response.data);
+            setOpenEditDialog(false);
+            setEditingItem(null);
+            setError(null);
+
+        } catch (err) {
+            setError("❌ לא ניתן לעדכן את הפריט. " + err);
         }
     };
 
+
+
     const handleDelete = async (id: number) => {
+        if (!window.confirm("⚠️ האם אתה בטוח שברצונך למחוק את הפריט הזה?")) return;
+
+        const token = localStorage.getItem("token");
+        if (!token) {
+            setError("❌ אין טוקן, אנא התחבר מחדש.");
+            return;
+        }
+
+        if (!isAdmin) {
+            setError("❌ אין לך הרשאה למחוק פריטים.");
+            return;
+        }
+
         try {
-            await deleteMenuItem(id);
+            console.log("📡 שולח בקשה למחיקת פריט:", id);
+
+            await menuItemApi.deleteMenuItem({id}, {
+                headers: { Authorization: `Bearer ${token}` },
+            });
+
+            console.log("✅ הפריט נמחק בהצלחה");
             setMenuItems(prevItems => prevItems.filter(item => item.id !== id));
         } catch (error) {
-            setError("❌ לא ניתן למחוק את הפריט. " + error);
+            console.error("❌ שגיאה במחיקת הפריט:", error);
+            setError("❌ לא ניתן למחוק את הפריט. " + (error as Error).message);
         }
     };
 
@@ -96,13 +147,16 @@ const MenuPage = () => {
                     <List>
                         {menuItems.map((item) => (
                             <ListItem key={item.id} divider className="menu-item">
-                                <ListItemText primary={<span className="menu-item-name">{item.name}</span>} />
-                                <Typography variant="body2" component="div" className="menu-item-description">
-                                    {item.description || "אין תיאור"}
-                                </Typography>
+                                {item.imageUrl && (
+                                    <img src={item.imageUrl} alt={item.name} className="menu-item-image" />
+                                )}
+                                <ListItemText
+                                    primary={<span className="menu-item-name">{item.name}</span>}
+                                    secondary={<span className="menu-item-description">{item.description || "אין תיאור"}</span>}
+                                />
                                 <div className="menu-item-status">
-                                    <Typography variant="body2" component="span" className="menu-item-price">
-                                        ₪ מחיר: {item.price}
+                                    <Typography variant="body2" className="menu-item-price">
+                                        ₪ {item.price}
                                     </Typography>
                                     <Chip
                                         label={item.isAvailable ? "✅ זמין" : "❌ לא זמין"}
@@ -110,15 +164,12 @@ const MenuPage = () => {
                                     />
                                 </div>
 
-                                {isAdmin ? (
+                                {isAdmin && (
                                     <div className="menu-item-actions">
                                         <Button variant="outlined" color="primary" onClick={() => handleEdit(item)}>✏️ עריכה</Button>
                                         <Button variant="outlined" color="secondary" onClick={() => handleDelete(item.id!)}>🗑️ מחיקה</Button>
                                     </div>
-                                ) : (
-                                    <Typography color="error">🔒 אין לך הרשאה לניהול התפריט</Typography>
                                 )}
-
                             </ListItem>
                         ))}
                     </List>
@@ -145,17 +196,48 @@ const MenuPage = () => {
                     <TextField
                         label="מחיר (₪)"
                         type="number"
-                        value={editingItem?.price || 0}
+                        value={editingItem?.price?.toString() || "0"}
                         onChange={(e) => setEditingItem({ ...editingItem!, price: parseFloat(e.target.value) || 0 })}
                         fullWidth
                         margin="dense"
                     />
+
+                    <Typography variant="subtitle1" sx={{ mt: 2 }}>בחר תמונה חדשה מ־Unsplash:</Typography>
+                    <UnsplashImagePicker
+                        onSelect={(imageUrl) =>
+                            editingItem && setEditingItem(prev => prev ? { ...prev, imageUrl } : null)
+                        }
+                    />
+                    {editingItem?.imageUrl && (
+                        <Box mt={2}>
+                            <Typography variant="body2">תמונה נבחרת:</Typography>
+                            <img
+                                src={`${editingItem.imageUrl}?t=${new Date().getTime()}`}
+                                alt="תמונה נבחרת"
+                                className="preview-image"
+                            />
+                            <Box mt={1}>
+                                <Button
+                                    variant="outlined"
+                                    color="error"
+                                    size="small"
+                                    onClick={() =>
+                                        setEditingItem(prev => prev ? { ...prev, imageUrl: "" } : null)
+                                    }
+                                >
+                                    הסר תמונה
+                                </Button>
+                            </Box>
+                        </Box>
+                    )}
+
                 </DialogContent>
                 <DialogActions>
                     <Button onClick={() => setOpenEditDialog(false)} color="secondary">ביטול</Button>
                     <Button onClick={handleEditSave} color="primary">שמור</Button>
                 </DialogActions>
             </Dialog>
+
         </Container>
     );
 };

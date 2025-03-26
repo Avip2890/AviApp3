@@ -1,11 +1,24 @@
+body {
+    background: linear-gradient(135deg, #ffe0b2, #f8bbd0, #b2ebf2, #dcedc8);
+    background-size: 400% 400%;
+    animation: gradientFlow 15s ease infinite;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+
+
 .home-container {
     text-align: center;
     margin-top: 50px;
+    padding: 20px;
 }
 
 .home-title {
     font-weight: bold;
     margin-bottom: 10px;
+    font-size: 32px;
+    color: #1a237e;
+    text-shadow: 1px 1px 2px #c5cae9;
 }
 
 .home-subtitle {
@@ -50,17 +63,25 @@
     background-color: #1976D2 !important;
 }
 
-
 .info-card {
     margin-top: 20px;
-    padding: 20px;
-    background-color: #f8f9fa;
-    border-radius: 10px;
+    padding: 25px;
+    background: linear-gradient(to right, #fceabb, #f8f9fa); /* מעבר צבעים עדין */
+    border-radius: 15px;
     text-align: left;
     max-width: 600px;
     margin-left: auto;
     margin-right: auto;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1); /* צל מודרני */
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
 }
+
+
+.info-card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+}
+
 
 .info-title {
     font-weight: bold;
@@ -72,5 +93,11 @@
     color: #333;
     text-align: right;
     direction: rtl;
+    background-color: #ffffffcc;
+    border-radius: 15px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+    padding: 20px;
+    line-height: 1.8;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
 }
 

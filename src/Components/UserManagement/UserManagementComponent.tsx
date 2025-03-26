@@ -4,12 +4,13 @@ import {
     TableHead, TableRow, Paper, Button, TextField, Dialog, DialogTitle,
     DialogContent, DialogActions, CircularProgress
 } from "@mui/material";
-import { getUsers, updateUser, deleteUser } from "../../Api/userService.ts";
-import { UserDto } from "../../Types/apiTypes.ts";
+import { UserApi, UserDto } from "../../open-api";
 import "./UserManagement.css";
 import * as React from "react";
 
 const UserManagement = () => {
+    const userApi = new UserApi();
+
     const [users, setUsers] = useState<UserDto[]>([]);
     const [filteredUsers, setFilteredUsers] = useState<UserDto[]>([]);
     const [loading, setLoading] = useState<boolean>(true);
@@ -23,12 +24,13 @@ const UserManagement = () => {
     useEffect(() => {
         const fetchUsers = async () => {
             try {
-                const usersData = await getUsers();
-                console.log("🔍 נתוני משתמשים מהשרת:", usersData);
-                setUsers(usersData);
-                setFilteredUsers(usersData); // ✅ קובע את המשתמשים כברירת מחדל
+                setLoading(true);
+                setError(null);
+                const usersResponse = await userApi.getUsers();
+                setUsers(usersResponse.data);
+                setFilteredUsers(usersResponse.data);
             } catch (error) {
-                setError("❌ לא ניתן לטעון את המשתמשים: " + error);
+                setError("❌ לא ניתן לטעון את המשתמשים: " + (error as Error).message);
             } finally {
                 setLoading(false);
             }
@@ -42,12 +44,13 @@ const UserManagement = () => {
         setSearchTerm(value);
 
         const filtered = users.filter(user =>
-            user.name.toLowerCase().includes(value.toLowerCase())
+            (user.name ?? "").toLowerCase().includes(value.toLowerCase())
         );
 
         setFilteredUsers(filtered);
     };
 
+    /** 📌 עריכת משתמש */
     const handleEdit = (user: UserDto) => {
         setEditingUser({ ...user });
         setOpenEditDialog(true);
@@ -59,16 +62,17 @@ const UserManagement = () => {
         }
     };
 
+    /** 📌 שמירת משתמש לאחר עריכה */
     const handleEditSave = async () => {
         if (editingUser && editingUser.id !== undefined) {
             try {
-                await updateUser(editingUser.id, editingUser);
+                await userApi.updateUser({ id: editingUser.id, userDto: editingUser }); // ✅ שימוש נכון ב- OpenAPI
                 setUsers(prevUsers => prevUsers.map(user => user.id === editingUser.id ? editingUser : user));
                 setFilteredUsers(prevUsers => prevUsers.map(user => user.id === editingUser.id ? editingUser : user));
                 setOpenEditDialog(false);
                 setEditingUser(null);
             } catch (error) {
-                setError("❌ לא ניתן לעדכן את המשתמש. " + error);
+                setError("❌ לא ניתן לעדכן את המשתמש. " + (error as Error).message);
             }
         }
     };
@@ -76,21 +80,29 @@ const UserManagement = () => {
     const handleDelete = async () => {
         if (userToDelete !== null) {
             try {
-                console.log("📡 שליחת בקשת מחיקה עבור משתמש ID:", userToDelete);
-                await deleteUser(userToDelete);
+                const token = localStorage.getItem("token");
+                if (!token) {
+                    setError("❌ לא נמצא טוקן. התחבר מחדש.");
+                    return;
+                }
+
+                await userApi.deleteUser(
+                    { id: userToDelete },
+                    { headers: { Authorization: `Bearer ${token}` } }
+                );
 
                 const updatedUsers = users.filter(user => user.id !== userToDelete);
                 setUsers(updatedUsers);
                 setFilteredUsers(updatedUsers);
                 setOpenDeleteDialog(false);
             } catch (error) {
-                console.error("❌ שגיאה במחיקת משתמש:", error);
-                setError("❌ לא ניתן למחוק את המשתמש. " + error);
+                setError("❌ לא ניתן למחוק את המשתמש. " + (error as Error).message);
             } finally {
                 setUserToDelete(null);
             }
         }
     };
+
 
     return (
         <Container>
@@ -123,9 +135,13 @@ const UserManagement = () => {
                         {filteredUsers.map((user) => (
                             <TableRow key={user.id}>
                                 <TableCell>{user.id}</TableCell>
-                                <TableCell>{user.name}</TableCell>
-                                <TableCell>{user.email}</TableCell>
-                                <TableCell>{new Date(user.createdAt || "").toLocaleDateString()}</TableCell>
+                                <TableCell>{user.name ?? ""}</TableCell>
+                                <TableCell>{user.email ?? ""}</TableCell>
+                                <TableCell>
+                                    {user.createdAt
+                                        ? new Date(user.createdAt).toLocaleDateString()
+                                        : "תאריך לא זמין"}
+                                </TableCell>
                                 <TableCell>
                                     <Button variant="outlined" color="primary" onClick={() => handleEdit(user)}>✏️ עריכה</Button>
                                     <Button variant="outlined" color="secondary" onClick={() => { setUserToDelete(user.id!); setOpenDeleteDialog(true); }}>🗑️ מחיקה</Button>
@@ -136,12 +152,13 @@ const UserManagement = () => {
                 </Table>
             </TableContainer>
 
+            {/* 🔹 דיאלוג עריכת משתמש */}
             <Dialog open={openEditDialog} onClose={() => setOpenEditDialog(false)}>
                 <DialogTitle>✏️ עריכת משתמש</DialogTitle>
                 <DialogContent>
-                    <TextField label="שם" name="name" value={editingUser?.name || ""} onChange={handleEditChange} fullWidth margin="dense" />
-                    <TextField label="אימייל" name="email" value={editingUser?.email || ""} onChange={handleEditChange} fullWidth margin="dense" />
-                    <TextField label="סיסמה" name="password" type="password" value={editingUser?.password || ""} onChange={handleEditChange} fullWidth margin="dense" />
+                    <TextField label="שם" name="name" value={editingUser?.name ?? ""} onChange={handleEditChange} fullWidth margin="dense" />
+                    <TextField label="אימייל" name="email" value={editingUser?.email ?? ""} onChange={handleEditChange} fullWidth margin="dense" />
+                    <TextField label="סיסמה" name="password" type="password" value={editingUser?.password ?? ""} onChange={handleEditChange} fullWidth margin="dense" />
                 </DialogContent>
                 <DialogActions>
                     <Button onClick={() => setOpenEditDialog(false)} color="secondary">ביטול</Button>
@@ -149,6 +166,7 @@ const UserManagement = () => {
                 </DialogActions>
             </Dialog>
 
+            {/* 🔹 דיאלוג מחיקת משתמש */}
             <Dialog open={openDeleteDialog} onClose={() => setOpenDeleteDialog(false)}>
                 <DialogTitle>🗑️ מחיקת משתמש</DialogTitle>
                 <DialogContent>

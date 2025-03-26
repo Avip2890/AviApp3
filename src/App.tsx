@@ -1,6 +1,8 @@
 import { useEffect, useState } from "react";
 import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
-import {CssBaseline, Container} from "@mui/material";
+import { CssBaseline, Container } from "@mui/material";
+import { jwtDecode } from "jwt-decode";
+
 import Login from "./Components/Login/LoginComponent.tsx";
 import Orders from "./Components/Orders/OrderComponent.tsx";
 import AdminDashboard from "./Components/AdminDashboard/AdminDashBoardComponent.tsx";
@@ -12,26 +14,34 @@ import MenuPage from "./Components/Menu/MenuComponent.tsx";
 import CreateOrderPage from "./Components/CreateOrder/CreateOrderComponent.tsx";
 import UserManagement from "./Components/UserManagement/UserManagementComponent.tsx";
 
+interface JwtPayloadWithRoles {
+    "http://schemas.microsoft.com/ws/2008/06/identity/claims/role": string | string[];
+}
+
+const getRolesFromToken = (): string[] => {
+    const token = localStorage.getItem("token");
+    if (!token) return [];
+
+    try {
+        const decoded = jwtDecode<JwtPayloadWithRoles>(token);
+        const roles = decoded["http://schemas.microsoft.com/ws/2008/06/identity/claims/role"];
+        return Array.isArray(roles) ? roles : [roles];
+    } catch {
+        return [];
+    }
+};
+
 const App = () => {
     const [isAuthenticated, setIsAuthenticated] = useState<boolean>(false);
     const [roles, setRoles] = useState<string[]>([]);
 
-
     useEffect(() => {
         const token = localStorage.getItem("token");
-        const storedRoles = JSON.parse(localStorage.getItem("roles") || "[]"); // הפיכת הטקסט למערך
-        const savedRole = localStorage.getItem("selectedRole");
-
-        console.log("🔍 Token:", token);
-        console.log("🔍 Roles:", storedRoles);
-        console.log("🔍 Selected Role:", savedRole);
-
         if (token) {
             setIsAuthenticated(true);
-            setRoles(Array.isArray(storedRoles) ? storedRoles : [storedRoles]);
+            const rolesFromToken = getRolesFromToken();
+            setRoles(rolesFromToken);
         }
-
-
     }, []);
 
     const handleLogout = () => {
@@ -40,8 +50,8 @@ const App = () => {
         localStorage.removeItem("selectedRole");
         setIsAuthenticated(false);
         setRoles([]);
-
     };
+
     return (
         <Router>
             <CssBaseline />
@@ -49,7 +59,7 @@ const App = () => {
 
             <Container sx={{ marginTop: 4 }}>
                 <Routes>
-                    <Route path= "/" element={<HomePage/>}/>
+                    <Route path="/" element={<HomePage />} />
                     <Route path="/login" element={!isAuthenticated ? <Login /> : <Navigate to="/" />} />
                     <Route path="/signup" element={<SignUp />} />
                     <Route
@@ -68,13 +78,12 @@ const App = () => {
                                 : <Navigate to="/login" />
                         }
                     />
-                    <Route path="/users" element={<UserManagement/>}/>
-                    <Route path="/menu-items" element={<MenuPage/>} />
+                    <Route path="/users" element={<UserManagement />} />
+                    <Route path="/menuitems" element={<MenuPage />} />
                     <Route path="/role-selection" element={isAuthenticated ? <RoleSelection /> : <Navigate to="/login" />} />
-                    <Route path="/create-orders" element={<CreateOrderPage/>}/>
+                    <Route path="/create-orders" element={<CreateOrderPage />} />
                     <Route path="/" element={<Navigate to={isAuthenticated ? "/" : "/login"} />} />
                 </Routes>
-
             </Container>
         </Router>
     );

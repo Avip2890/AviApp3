@@ -3,16 +3,31 @@
     margin-top: 50px;
 }
 
-.create-order-title {
+.form-title {
+    font-size: 24px;
     font-weight: bold;
-    margin-bottom: 20px;
+    color: #2e7d32;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
 }
 
 .create-order-form {
     max-width: 500px;
     margin: 0 auto;
     text-align: right;
+    padding: 30px;
+    border: 2px solid #c8e6c9;
+    border-radius: 15px;
+    background-color: #f9fbe7;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
 }
+
+.create-order-form:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 18px rgba(0, 0, 0, 0.15);
+}
+
 
 .error-message {
     font-size: 16px;

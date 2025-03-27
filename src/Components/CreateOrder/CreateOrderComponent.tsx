@@ -15,7 +15,6 @@ const CreateOrderPage = () => {
     const [loading, setLoading] = useState<boolean>(false);
     const [error, setError] = useState<string | null>(null);
     const [success, setSuccess] = useState<string | null>(null);
-
     const menuItemApi = new MenuItemApi();
     const orderApi = new OrderApi();
 
@@ -23,10 +22,9 @@ const CreateOrderPage = () => {
         const fetchMenuItems = async () => {
             try {
                 const response = await menuItemApi.getMenuItems();
-                setMenuItems(response.data as MenuItemDto[]); // ✅ הגדרת הטיפוס
+                setMenuItems(response.data as MenuItemDto[]);
             } catch (err) {
-                console.error("❌ שגיאה בטעינת התפריט:", err);
-                setError("❌ לא ניתן לטעון את התפריט.");
+                setError( err +"❌ לא ניתן לטעון את התפריט.");
             }
         };
         fetchMenuItems();
@@ -43,7 +41,6 @@ const CreateOrderPage = () => {
             setLoading(false);
             return;
         }
-
         const orderData: OrderDto = {
             customerName,
             phone,
@@ -51,8 +48,6 @@ const CreateOrderPage = () => {
             customerId: 1,
             orderMenuItems: selectedMenuItems.map((id) => ({ orderId: 0, menuItemId: id })),
         };
-
-        console.log("📡 שולח בקשה ליצירת הזמנה:", orderData);
 
         try {
             const response = await orderApi.addOrder({ orderDto: orderData });
@@ -67,7 +62,7 @@ const CreateOrderPage = () => {
             if (err instanceof Error) {
                 console.error("❌ שגיאה ביצירת הזמנה:", err.message);
             } else {
-                console.error("❌ שגיאה בלתי צפויה:", err);
+                console.error("❌ שגיאה :", err);
             }
 
             setError("❌ לא ניתן ליצור את ההזמנה. בדוק את הנתונים ונסה שוב.");
@@ -75,7 +70,6 @@ const CreateOrderPage = () => {
             setLoading(false);
         }
     };
-
 
     return (
         <Container className="create-order-container">

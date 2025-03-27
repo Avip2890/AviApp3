@@ -13,6 +13,7 @@ import HomePage from "./Components/Home/HomePageComponent.tsx";
 import MenuPage from "./Components/Menu/MenuComponent.tsx";
 import CreateOrderPage from "./Components/CreateOrder/CreateOrderComponent.tsx";
 import UserManagement from "./Components/UserManagement/UserManagementComponent.tsx";
+import UserProfile from "./Components/UserProfile/UserProfile.tsx";
 
 interface JwtPayloadWithRoles {
     "http://schemas.microsoft.com/ws/2008/06/identity/claims/role": string | string[];
@@ -70,6 +71,7 @@ const App = () => {
                                 : <Navigate to="/login" />
                         }
                     />
+                    <Route path="/profile" element={<UserProfile />} />
                     <Route
                         path="/admin"
                         element={

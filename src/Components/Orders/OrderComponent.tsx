@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import {
-    Typography, Container, Paper, List, ListItem, ListItemText, CircularProgress,
+    Typography, Container, Paper, List, ListItem, CircularProgress,
     Button, Dialog, DialogTitle, DialogContent, TextField, DialogActions, FormControl,
     InputLabel, Select, MenuItem, SelectChangeEvent
 } from "@mui/material";
@@ -12,7 +12,6 @@ const Orders = () => {
     const token = localStorage.getItem("token") ?? "";
     const orderApi = new OrderApi();
     const menuItemApi = new MenuItemApi();
-
     const [orders, setOrders] = useState<OrderDto[]>([]);
     const [menuItems, setMenuItems] = useState<MenuItemDto[]>([]);
     const [loading, setLoading] = useState<boolean>(true);
@@ -20,6 +19,13 @@ const Orders = () => {
     const [editingOrder, setEditingOrder] = useState<OrderDto | null>(null);
     const [openEditDialog, setOpenEditDialog] = useState<boolean>(false);
     const [userRole, setUserRole] = useState<string | null>(null);
+    const [expandedOrders, setExpandedOrders] = useState<number[]>([]);
+
+    const toggleOrderDetails = (orderId: number) => {
+        setExpandedOrders(prev =>
+            prev.includes(orderId) ? prev.filter(id => id !== orderId) : [...prev, orderId]
+        );
+    };
 
     useEffect(() => {
         const role = localStorage.getItem("selectedRole");
@@ -40,8 +46,6 @@ const Orders = () => {
             setMenuItems(menuResponse?.data ?? []);
             setOrders(ordersResponse?.data ?? []);
 
-            console.log("📥 menuItems:", menuResponse.data);
-            console.log("📥 orders:", ordersResponse.data);
 
         } catch (error) {
             setError("❌ לא ניתן לטעון נתונים: " + (error as Error).message);
@@ -93,7 +97,6 @@ const Orders = () => {
         });
     };
     const handleEditSave = async () => {
-        console.log("🛠️ התחלת שמירה");
 
         if (!editingOrder || !editingOrder.id) {
             setError("❌ ההזמנה לעריכה לא תקינה.");
@@ -128,7 +131,6 @@ const Orders = () => {
                 }))
             };
 
-            console.log("📦 נשלח ל-API:", updatedOrderDto);
 
             await orderApi.updateOrder({
                 id: editingOrder.id,
@@ -144,9 +146,7 @@ const Orders = () => {
             setOpenEditDialog(false);
             setEditingOrder(null);
             setError(null);
-            console.log("✅ עדכון הצליח!");
         } catch (err) {
-            console.error("❌ שגיאה בעדכון ההזמנה:", err);
             setError("❌ שגיאה בעדכון ההזמנה: " + (err as Error).message);
         }
     };
@@ -169,27 +169,50 @@ const Orders = () => {
                     <List className="orders-list">
                         {orders.map((order) => (
                             <ListItem key={order.id} divider className="order-item">
-                                <ListItemText
-                                    className="order-details"
-                                    primary={`הזמנה #${order.id} - לקוח: ${order.customerName || "לא ידוע"}`}
-                                    secondary={
-                                        <>
-                                            📅 {order.orderDate ? new Date(order.orderDate).toLocaleDateString() : "תאריך לא זמין"}<br />
-                                            📞 {order.phone}<br />
-                                            📋 {order.orderMenuItems?.map((omi) => {
-                                            const matchedItem = menuItems.find((mi) => mi.id === omi.menuItemId);
-                                            return matchedItem?.name;
-                                        }).join(", ") || "לא צויינו פריטים"}
-                                        </>
-                                    }
-                                />
-                                {userRole === "Admin" && (
-                                    <div className="action-buttons">
-                                        <Button className="edit-button" onClick={() => handleEdit(order)}>ערוך</Button>
-                                        <Button className="delete-button" onClick={() => handleDelete(order.id!)}>מחק</Button>
+                                <div className="order-header">
+                                    <Typography variant="subtitle1" onClick={() => toggleOrderDetails(order.id!)} className="order-number clickable">
+                                        📦 הזמנה #{order.id}
+                                    </Typography>
+                                    {userRole === "Admin" && (
+                                        <div className="action-buttons">
+                                            <Button className="edit-button" onClick={() => handleEdit(order)}>ערוך</Button>
+                                            <Button className="delete-button" onClick={() => handleDelete(order.id!)}>מחק</Button>
+                                        </div>
+                                    )}
+                                </div>
+
+                                {expandedOrders.includes(order.id!) && (
+                                    <div className="order-details">
+                                        <Typography>👤 לקוח: {order.customerName}</Typography>
+                                        <Typography>📞 טלפון: {order.phone}</Typography>
+                                        <Typography>📅 תאריך: {order.orderDate ? new Date(order.orderDate).toLocaleDateString() : "תאריך לא זמין"}
+                                        </Typography>
+                                        <Typography>
+                                            📋 פריטים:
+                                            <ul>
+                                                {order.orderMenuItems?.map((omi) => {
+                                                    const item = menuItems.find(mi => mi.id === omi.menuItemId);
+                                                    return (
+                                                        <li key={omi.menuItemId}>
+                                                            {item?.name} - ₪{item?.price?.toFixed(2)}
+                                                        </li>
+                                                    );
+                                                })}
+                                            </ul>
+                                        </Typography>
+                                        <Typography className="total-price">
+                                            💰 סה"כ: ₪
+                                            {
+                                                order.orderMenuItems?.reduce((sum, omi) => {
+                                                    const item = menuItems.find(mi => mi.id === omi.menuItemId);
+                                                    return sum + (item?.price ?? 0);
+                                                }, 0).toFixed(2)
+                                            }
+                                        </Typography>
                                     </div>
                                 )}
                             </ListItem>
+
                         ))}
                     </List>
                 </Paper>

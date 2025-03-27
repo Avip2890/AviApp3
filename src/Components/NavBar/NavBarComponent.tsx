@@ -3,7 +3,7 @@ import { AppBar, Toolbar, Typography, Button } from "@mui/material";
 import { useNavigate } from "react-router-dom";
 import "./Navbar.css";
 import { NavbarProps } from "../../Interfaces/NavbarInterface.ts";
-import { jwtDecode } from "jwt-decode"; // ספריית פענוח טוקן
+import { jwtDecode } from "jwt-decode";
 
 
 interface JwtPayloadWithRoles {
@@ -28,13 +28,19 @@ const getUserRoles = (): string[] => {
 const Navbar = ({ isAuthenticated, roles, handleLogout }: NavbarProps) => {
     const navigate = useNavigate();
     const [userRoles, setUserRoles] = useState<string[]>(roles || []);
+    const [selectedRole, setSelectedRole] = useState<string | null>(null);
     const [isLoading, setIsLoading] = useState(true);
 
     useEffect(() => {
         const fetchedRoles = getUserRoles();
         setUserRoles(fetchedRoles);
-        setIsLoading(false); // סיימנו לטעון
+        console.log(userRoles)
+        const savedRole = localStorage.getItem("selectedRole");
+        setSelectedRole(savedRole);
+
+        setIsLoading(false);
     }, []);
+
 
     const handleLogoutClick = () => {
         handleLogout();
@@ -63,18 +69,25 @@ const Navbar = ({ isAuthenticated, roles, handleLogout }: NavbarProps) => {
 
                 {isAuthenticated ? (
                     <div className="navbar-links">
-                        {!isLoading && userRoles.includes("Admin") && (
+                        {!isLoading && selectedRole === "Admin" && (
                             <>
                                 <Button color="inherit" onClick={() => handleNavigation("/admin")}>ניהול</Button>
                                 <Button color="inherit" onClick={() => handleNavigation("/menuitems")}>ניהול תפריט</Button>
                                 <Button color="inherit" onClick={() => handleNavigation("/orders")}>הזמנות</Button>
                             </>
                         )}
+
+                        {!isLoading && selectedRole === "User" && (
+                            <Button color="inherit" onClick={() => handleNavigation("/profile")}>👤 פרופיל משתמש</Button>
+                        )}
+
                         <Button color="inherit" onClick={handleLogoutClick}>התנתק</Button>
                     </div>
                 ) : (
                     <Button color="inherit" onClick={() => handleNavigation("/login")}>התחברות</Button>
                 )}
+
+
             </Toolbar>
         </AppBar>
     );

@@ -9,6 +9,7 @@ import { MenuItemApi, MenuItemDto } from "../../open-api";
 import UnsplashImagePicker from "../UnsplashImagePicker/UnsplashImagePickerComponent";
 import "./AdminDashboard.css";
 import * as React from "react";
+import { useDashboardStats } from "../../store/useDashboardStats.ts";
 
 const AdminDashboard = () => {
     const navigate = useNavigate();
@@ -22,7 +23,7 @@ const AdminDashboard = () => {
         isAvailable: true,
         imageUrl: ""
     });
-
+const { orderCount, menuItemCount, userCount, monthlyIncome, loadingStats } = useDashboardStats();
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
     const [success, setSuccess] = useState<string | null>(null);
@@ -93,27 +94,30 @@ const AdminDashboard = () => {
                 <Card className="dashboard-card">
                     <CardContent>
                         <Typography variant="h6">📦 סה"כ הזמנות</Typography>
-                        <Typography variant="h4">125</Typography>
+                        <Typography variant="h4">{loadingStats ? "..." : orderCount}</Typography>
                     </CardContent>
                 </Card>
                 <Card className="dashboard-card">
                     <CardContent>
                         <Typography variant="h6">🍽️ פריטים בתפריט</Typography>
-                        <Typography variant="h4">32</Typography>
+                        <Typography variant="h4">{loadingStats ? "..." : menuItemCount}</Typography>
                     </CardContent>
                 </Card>
                 <Card className="dashboard-card">
                     <CardContent>
                         <Typography variant="h6">👥 מספר משתמשים</Typography>
-                        <Typography variant="h4">57</Typography>
+                        <Typography variant="h4">{loadingStats ? "..." : userCount}</Typography>
                     </CardContent>
                 </Card>
                 <Card className="dashboard-card">
                     <CardContent>
                         <Typography variant="h6">💰 הכנסה חודשית</Typography>
-                        <Typography variant="h4">₪12,450</Typography>
+                        <Typography variant="h4">
+                            {loadingStats ? "..." : `₪${monthlyIncome.toLocaleString()}`}
+                        </Typography>
                     </CardContent>
                 </Card>
+
             </Stack>
 
             <Stack spacing={3} direction="row" justifyContent="center" className="dashboard-actions">

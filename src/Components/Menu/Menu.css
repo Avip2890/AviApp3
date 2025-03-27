@@ -2,12 +2,17 @@
     max-width: 800px;
     margin: auto;
     text-align: center;
+    padding: 20px;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background: linear-gradient(to bottom right, #fdfbfb, #ebedee);
+    border-radius: 12px;
+    box-shadow: 0 0 15px rgba(0, 0, 0, 0.08);
 }
 
 .menu-title {
     font-size: 2rem;
     font-weight: bold;
-    color: #333;
+    color: #2c3e50;
     margin-bottom: 20px;
 }
 
@@ -17,14 +22,16 @@
 }
 
 .menu-error, .menu-no-data {
-    color: red;
+    color: #e53935;
     font-weight: bold;
     margin-top: 20px;
 }
 
 .menu-paper {
     padding: 20px;
-    border-radius: 8px;
+    border-radius: 10px;
+    background-color: #ffffff;
+    box-shadow: 0 3px 12px rgba(0, 0, 0, 0.06);
 }
 
 .menu-item {
@@ -32,24 +39,30 @@
     flex-direction: column;
     align-items: flex-start;
     padding: 15px 20px;
+    transition: background-color 0.3s ease;
+    border-radius: 8px;
+}
+
+.menu-item:hover {
+    background-color: #f4f6f8;
 }
 
 .menu-item-name {
     font-size: 1.2rem;
     font-weight: bold;
-    color: #2c3e50;
+    color: #37474f;
 }
 
 .menu-item-description {
     font-size: 0.95rem;
-    color: #555;
+    color: #607d8b;
     margin-top: 5px;
 }
 
 .menu-item-price {
     font-size: 1rem;
     font-weight: bold;
-    color: #27ae60;
+    color: #2e7d32;
     margin-top: 5px;
 }
 
@@ -61,13 +74,15 @@
 }
 
 .available-chip {
-    background-color: #4caf50 !important;
+    background-color: #66bb6a !important;
     color: white !important;
+    border-radius: 8px;
 }
 
 .unavailable-chip {
-    background-color: #e74c3c !important;
+    background-color: #ef5350 !important;
     color: white !important;
+    border-radius: 8px;
 }
 
 .menu-item-actions {
@@ -78,12 +93,15 @@
 
 .menu-item-actions button {
     font-size: 0.9rem;
+    border-radius: 6px !important;
+    transition: background-color 0.3s ease;
 }
 
 .menu-item-image {
     width: 200px;
     height: 200px;
     object-fit: cover;
-    border-radius: 8px;
+    border-radius: 10px;
     margin-inline-end: 16px;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
 }

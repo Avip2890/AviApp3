@@ -6,6 +6,7 @@ import "./HomePage.css";
 const HomePage = () => {
     const navigate = useNavigate();
     const [showInfo, setShowInfo] = useState<boolean>(false);
+    const isLoggedIn = !!localStorage.getItem("token");
 
     return (
         <Container className="home-container">
@@ -17,9 +18,11 @@ const HomePage = () => {
                     variant="contained"
                     className="green-button"
                     onClick={() => navigate("/create-orders")}
+                    disabled={!isLoggedIn}
                 >
                     ➕ הוספת הזמנה
                 </Button>
+
 
                 <Button
                     variant="contained"

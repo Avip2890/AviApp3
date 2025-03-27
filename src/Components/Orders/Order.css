@@ -89,3 +89,31 @@
 .edit-dialog .MuiDialog-paper {
     border-radius: 12px;
 }
+.order-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.order-number {
+    font-weight: bold;
+    cursor: pointer;
+    transition: color 0.3s;
+}
+
+.order-number:hover {
+    color: #1976d2;
+}
+
+.order-details {
+    margin-top: 10px;
+    padding: 10px;
+    background-color: #f3f4f6;
+    border-radius: 8px;
+}
+
+.total-price {
+    margin-top: 10px;
+    font-weight: bold;
+    color: #4CAF50;
+}

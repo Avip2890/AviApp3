@@ -24,18 +24,29 @@ const Login = () => {
         setMessage(null);
         const authApi = AuthApiFactory();
         try {
-            const response = await authApi.login({loginRequestDto: {email, password}});
+            const response = await authApi.login({ loginRequestDto: { email, password } });
             const token = response.data;
             localStorage.setItem("token", token);
 
             const decodedToken: JwtPayloadWithRoles = JwtDecode.jwtDecode(token);
             const roles = decodedToken['http://schemas.microsoft.com/ws/2008/06/identity/claims/role'];
-            setUserRoles(Array.isArray(roles) ? roles : [roles]);
+            const rolesArray = Array.isArray(roles) ? roles : [roles];
+
+            // ✅ אם יש רק תפקיד אחד - נווט מיד
+            if (rolesArray.length === 1) {
+                localStorage.setItem("selectedRole", rolesArray[0]);
+                navigate(rolesArray[0] === "Admin" ? "/admin" : "/orders");
+                window.location.reload();
+            } else {
+                // ✅ אם יש יותר מתפקיד אחד - הצג דיאלוג בחירה
+                setUserRoles(rolesArray);
+            }
 
         } catch (error) {
             console.log(`❌ שגיאה: ${error || "אירעה שגיאה"}`);
         }
-    }
+    };
+
 
     const handleRoleSelection = (role: string) => {
         localStorage.setItem("selectedRole", role);

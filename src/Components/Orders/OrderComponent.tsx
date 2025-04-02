@@ -7,6 +7,7 @@ import {
 import { OrderApi, MenuItemApi, OrderDto, MenuItemDto } from "../../open-api";
 import "./Order.css";
 import * as React from "react";
+import useIsAdmin from "../../store/useIsAdmin"; // השתמש ב-hook פה
 
 const Orders = () => {
     const token = localStorage.getItem("token") ?? "";
@@ -18,8 +19,8 @@ const Orders = () => {
     const [error, setError] = useState<string | null>(null);
     const [editingOrder, setEditingOrder] = useState<OrderDto | null>(null);
     const [openEditDialog, setOpenEditDialog] = useState<boolean>(false);
-    const [userRole, setUserRole] = useState<string | null>(null);
     const [expandedOrders, setExpandedOrders] = useState<number[]>([]);
+    const isAdmin = useIsAdmin();
 
     const toggleOrderDetails = (orderId: number) => {
         setExpandedOrders(prev =>
@@ -28,8 +29,6 @@ const Orders = () => {
     };
 
     useEffect(() => {
-        const role = localStorage.getItem("selectedRole");
-        setUserRole(role);
         fetchData();
     }, []);
 
@@ -46,14 +45,12 @@ const Orders = () => {
             setMenuItems(menuResponse?.data ?? []);
             setOrders(ordersResponse?.data ?? []);
 
-
         } catch (error) {
             setError("❌ לא ניתן לטעון נתונים: " + (error as Error).message);
         } finally {
             setLoading(false);
         }
     };
-
 
     const handleDelete = async (id: number) => {
         if (!window.confirm("⚠️ האם אתה בטוח שברצונך למחוק את ההזמנה?")) return;
@@ -96,8 +93,8 @@ const Orders = () => {
             orderMenuItems: updatedOrderMenuItems
         });
     };
-    const handleEditSave = async () => {
 
+    const handleEditSave = async () => {
         if (!editingOrder || !editingOrder.id) {
             setError("❌ ההזמנה לעריכה לא תקינה.");
             return;
@@ -124,13 +121,12 @@ const Orders = () => {
                 customerName: editingOrder.customerName,
                 phone: editingOrder.phone,
                 orderDate: editingOrder.orderDate,
-                customerId: editingOrder.customerId ?? 0,
+                email: editingOrder.email,
                 orderMenuItems: editingOrder.orderMenuItems.map(item => ({
                     orderId: editingOrder.id ?? 0,
                     menuItemId: item.menuItemId
                 }))
             };
-
 
             await orderApi.updateOrder({
                 id: editingOrder.id,
@@ -150,8 +146,6 @@ const Orders = () => {
             setError("❌ שגיאה בעדכון ההזמנה: " + (err as Error).message);
         }
     };
-
-
 
     return (
         <Container className="orders-container">
@@ -173,7 +167,7 @@ const Orders = () => {
                                     <Typography variant="subtitle1" onClick={() => toggleOrderDetails(order.id!)} className="order-number clickable">
                                         📦 הזמנה #{order.id}
                                     </Typography>
-                                    {userRole === "Admin" && (
+                                    {isAdmin && ( // השתמש ב-isAdmin כדי להחליט אם להציג את כפתורי העריכה והמחיקה
                                         <div className="action-buttons">
                                             <Button className="edit-button" onClick={() => handleEdit(order)}>ערוך</Button>
                                             <Button className="delete-button" onClick={() => handleDelete(order.id!)}>מחק</Button>
@@ -185,8 +179,7 @@ const Orders = () => {
                                     <div className="order-details">
                                         <Typography>👤 לקוח: {order.customerName}</Typography>
                                         <Typography>📞 טלפון: {order.phone}</Typography>
-                                        <Typography>📅 תאריך: {order.orderDate ? new Date(order.orderDate).toLocaleDateString() : "תאריך לא זמין"}
-                                        </Typography>
+                                        <Typography>📅 תאריך: {order.orderDate ? new Date(order.orderDate).toLocaleDateString() : "תאריך לא זמין"}</Typography>
                                         <Typography>
                                             📋 פריטים:
                                             <ul>
@@ -202,17 +195,14 @@ const Orders = () => {
                                         </Typography>
                                         <Typography className="total-price">
                                             💰 סה"כ: ₪
-                                            {
-                                                order.orderMenuItems?.reduce((sum, omi) => {
-                                                    const item = menuItems.find(mi => mi.id === omi.menuItemId);
-                                                    return sum + (item?.price ?? 0);
-                                                }, 0).toFixed(2)
-                                            }
+                                            {order.orderMenuItems?.reduce((sum, omi) => {
+                                                const item = menuItems.find(mi => mi.id === omi.menuItemId);
+                                                return sum + (item?.price ?? 0);
+                                            }, 0).toFixed(2)}
                                         </Typography>
                                     </div>
                                 )}
                             </ListItem>
-
                         ))}
                     </List>
                 </Paper>
@@ -250,7 +240,6 @@ const Orders = () => {
                 </DialogActions>
             </Dialog>
         </Container>
-
     );
 };
 

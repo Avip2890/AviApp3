@@ -6,6 +6,7 @@ import {
 import { MenuItemApi, MenuItemDto } from "../../open-api";
 import "./Menu.css";
 import UnsplashImagePicker from "../UnsplashImagePicker/UnsplashImagePickerComponent.tsx";
+import useIsAdmin from "../../store/useIsAdmin.ts"
 
 const MenuPage = () => {
     const [menuItems, setMenuItems] = useState<MenuItemDto[]>([]);
@@ -13,28 +14,9 @@ const MenuPage = () => {
     const [error, setError] = useState<string | null>(null);
     const [editingItem, setEditingItem] = useState<MenuItemDto | null>(null);
     const [openEditDialog, setOpenEditDialog] = useState<boolean>(false);
-    const [isAdmin, setIsAdmin] = useState<boolean>(false);
+    const isAdmin = useIsAdmin(); // ✅ החלפה במקום שימוש ב־useState
+
     const menuItemApi = new MenuItemApi();
-
-    const getUserRoles = (): string[] => {
-        const token = localStorage.getItem("token");
-        if (!token) return [];
-
-        try {
-            const decodedToken = JSON.parse(atob(token.split(".")[1]));
-            const rolesClaimKey = Object.keys(decodedToken).find(key => key.toLowerCase().includes("role"));
-            const rolesClaim = rolesClaimKey ? decodedToken[rolesClaimKey] : [];
-            return Array.isArray(rolesClaim) ? rolesClaim : [rolesClaim];
-
-        } catch (err) {
-            console.error("❌ שגיאה בפענוח הטוקן:", err);
-            return [];
-        }
-    };
-
-    useEffect(() => {
-        setIsAdmin(getUserRoles().includes("Admin"));
-    }, []);
 
     useEffect(() => {
         const fetchMenuItems = async () => {
@@ -71,8 +53,6 @@ const MenuPage = () => {
         }
 
         try {
-            console.log("📦 שולח עדכון לפריט:", editingItem);
-
             await menuItemApi.updateMenuItem({
                 id: editingItem.id,
                 menuItemDto: {
@@ -100,8 +80,6 @@ const MenuPage = () => {
         }
     };
 
-
-
     const handleDelete = async (id: number) => {
         if (!window.confirm("⚠️ האם אתה בטוח שברצונך למחוק את הפריט הזה?")) return;
 
@@ -117,16 +95,12 @@ const MenuPage = () => {
         }
 
         try {
-            console.log("📡 שולח בקשה למחיקת פריט:", id);
-
-            await menuItemApi.deleteMenuItem({id}, {
+            await menuItemApi.deleteMenuItem({ id }, {
                 headers: { Authorization: `Bearer ${token}` },
             });
 
-            console.log("✅ הפריט נמחק בהצלחה");
             setMenuItems(prevItems => prevItems.filter(item => item.id !== id));
         } catch (error) {
-            console.error("❌ שגיאה במחיקת הפריט:", error);
             setError("❌ לא ניתן למחוק את הפריט. " + (error as Error).message);
         }
     };
@@ -230,14 +204,12 @@ const MenuPage = () => {
                             </Box>
                         </Box>
                     )}
-
                 </DialogContent>
                 <DialogActions>
                     <Button onClick={() => setOpenEditDialog(false)} color="secondary">ביטול</Button>
                     <Button onClick={handleEditSave} color="primary">שמור</Button>
                 </DialogActions>
             </Dialog>
-
         </Container>
     );
 };

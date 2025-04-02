@@ -2,7 +2,8 @@ import { useEffect, useState } from "react";
 import {
     Typography, Container, Table, TableBody, TableCell, TableContainer,
     TableHead, TableRow, Paper, Button, TextField, Dialog, DialogTitle,
-    DialogContent, DialogActions, CircularProgress
+    DialogContent, DialogActions, CircularProgress, Select, MenuItem,
+    FormControl, InputLabel, SelectChangeEvent
 } from "@mui/material";
 import { UserApi, UserDto } from "../../open-api";
 import "./UserManagement.css";
@@ -50,7 +51,6 @@ const UserManagement = () => {
         setFilteredUsers(filtered);
     };
 
-    /** 📌 עריכת משתמש */
     const handleEdit = (user: UserDto) => {
         setEditingUser({ ...user });
         setOpenEditDialog(true);
@@ -62,11 +62,18 @@ const UserManagement = () => {
         }
     };
 
-    /** 📌 שמירת משתמש לאחר עריכה */
+    const handleRoleChange = (event: SelectChangeEvent) => {
+        const selectedRole = event.target.value;
+        setEditingUser(prev => {
+            if (!prev) return null;
+            return { ...prev, roles: [{ name: selectedRole }] };
+        });
+    };
+
     const handleEditSave = async () => {
         if (editingUser && editingUser.id !== undefined) {
             try {
-                await userApi.updateUser({ id: editingUser.id, userDto: editingUser }); // ✅ שימוש נכון ב- OpenAPI
+                await userApi.updateUser({ id: editingUser.id, userDto: editingUser });
                 setUsers(prevUsers => prevUsers.map(user => user.id === editingUser.id ? editingUser : user));
                 setFilteredUsers(prevUsers => prevUsers.map(user => user.id === editingUser.id ? editingUser : user));
                 setOpenEditDialog(false);
@@ -103,7 +110,6 @@ const UserManagement = () => {
         }
     };
 
-
     return (
         <Container>
             <Typography variant="h4">👥 ניהול משתמשים</Typography>
@@ -128,6 +134,7 @@ const UserManagement = () => {
                             <TableCell>שם</TableCell>
                             <TableCell>אימייל</TableCell>
                             <TableCell>תאריך יצירה</TableCell>
+                            <TableCell>תפקידים</TableCell>
                             <TableCell>פעולות</TableCell>
                         </TableRow>
                     </TableHead>
@@ -143,6 +150,9 @@ const UserManagement = () => {
                                         : "תאריך לא זמין"}
                                 </TableCell>
                                 <TableCell>
+                                    {user.roles?.map(role => role.name).join(", ") ?? "ללא תפקיד"}
+                                </TableCell>
+                                <TableCell>
                                     <Button variant="outlined" color="primary" onClick={() => handleEdit(user)}>✏️ עריכה</Button>
                                     <Button variant="outlined" color="secondary" onClick={() => { setUserToDelete(user.id!); setOpenDeleteDialog(true); }}>🗑️ מחיקה</Button>
                                 </TableCell>
@@ -152,13 +162,24 @@ const UserManagement = () => {
                 </Table>
             </TableContainer>
 
-            {/* 🔹 דיאלוג עריכת משתמש */}
             <Dialog open={openEditDialog} onClose={() => setOpenEditDialog(false)}>
                 <DialogTitle>✏️ עריכת משתמש</DialogTitle>
                 <DialogContent>
                     <TextField label="שם" name="name" value={editingUser?.name ?? ""} onChange={handleEditChange} fullWidth margin="dense" />
                     <TextField label="אימייל" name="email" value={editingUser?.email ?? ""} onChange={handleEditChange} fullWidth margin="dense" />
                     <TextField label="סיסמה" name="password" type="password" value={editingUser?.password ?? ""} onChange={handleEditChange} fullWidth margin="dense" />
+
+                    <FormControl fullWidth margin="dense">
+                        <InputLabel id="role-label">תפקיד</InputLabel>
+                        <Select
+                            labelId="role-label"
+                            value={editingUser?.roles?.[0]?.name || ""}
+                            onChange={handleRoleChange}
+                        >
+                            <MenuItem value="User">User</MenuItem>
+                            <MenuItem value="Admin">Admin</MenuItem>
+                        </Select>
+                    </FormControl>
                 </DialogContent>
                 <DialogActions>
                     <Button onClick={() => setOpenEditDialog(false)} color="secondary">ביטול</Button>
@@ -166,7 +187,6 @@ const UserManagement = () => {
                 </DialogActions>
             </Dialog>
 
-            {/* 🔹 דיאלוג מחיקת משתמש */}
             <Dialog open={openDeleteDialog} onClose={() => setOpenDeleteDialog(false)}>
                 <DialogTitle>🗑️ מחיקת משתמש</DialogTitle>
                 <DialogContent>

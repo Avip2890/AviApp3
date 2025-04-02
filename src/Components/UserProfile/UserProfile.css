@@ -1,13 +1,16 @@
 .profile-container {
     margin-top: 40px;
     display: flex;
-    justify-content: center;
+    flex-direction: column;
+    align-items: center;
+    gap: 30px;
 }
 
 .profile-card {
     padding: 30px;
     border-radius: 12px;
     max-width: 500px;
+    width: 100%;
     text-align: right;
     background: linear-gradient(to right, #f8f9fa, #e3f2fd);
     box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
@@ -19,6 +22,71 @@
     color: #2c3e50;
 }
 
+.orders-card {
+    padding: 25px;
+    border-radius: 12px;
+    max-width: 700px;
+    width: 100%;
+    background: #ffffff;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+    text-align: right;
+}
+
+.orders-title {
+    font-weight: bold;
+    margin-bottom: 15px;
+    color: #34495e;
+}
+
+.order-summary {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    cursor: pointer;
+    padding: 12px 16px;
+    border-radius: 8px;
+    transition: background-color 0.2s ease;
+    background-color: #f0f4f8;
+}
+
+.order-summary:hover {
+    background-color: #e2ecf6;
+}
+
+.order-number {
+    font-weight: bold;
+    color: #2c3e50;
+}
+
+.order-details {
+    padding: 15px 20px;
+    background-color: #fafafa;
+    border-radius: 0 0 10px 10px;
+    margin-bottom: 10px;
+    animation: fadeIn 0.3s ease-in-out;
+}
+
+.order-details ul {
+    padding-right: 20px;
+    margin: 10px 0;
+}
+
+.order-details li {
+    margin-bottom: 4px;
+    color: #555;
+}
+
 .logout-btn {
     margin-top: 20px;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(-6px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
 }

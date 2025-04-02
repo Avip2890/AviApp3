@@ -3,44 +3,18 @@ import { AppBar, Toolbar, Typography, Button } from "@mui/material";
 import { useNavigate } from "react-router-dom";
 import "./Navbar.css";
 import { NavbarProps } from "../../Interfaces/NavbarInterface.ts";
-import { jwtDecode } from "jwt-decode";
+import useIsAdmin from "../../store/useIsAdmin.ts";
 
 
-interface JwtPayloadWithRoles {
-    "http://schemas.microsoft.com/ws/2008/06/identity/claims/role": string | string[];
-}
 
-
-const getUserRoles = (): string[] => {
-    const token = localStorage.getItem("token");
-    if (!token) return [];
-
-    try {
-        const decodedToken: JwtPayloadWithRoles = jwtDecode<JwtPayloadWithRoles>(token);
-        const rolesClaim = decodedToken["http://schemas.microsoft.com/ws/2008/06/identity/claims/role"];
-        return Array.isArray(rolesClaim) ? rolesClaim : [rolesClaim];
-    } catch (err) {
-        console.error("❌ שגיאה בפענוח הטוקן:", err);
-        return [];
-    }
-};
-
-const Navbar = ({ isAuthenticated, roles, handleLogout }: NavbarProps) => {
+const Navbar = ({ isAuthenticated, handleLogout }: NavbarProps) => {
     const navigate = useNavigate();
-    const [userRoles, setUserRoles] = useState<string[]>(roles || []);
-    const [selectedRole, setSelectedRole] = useState<string | null>(null);
+    const isAdmin = useIsAdmin(); // השגת מידע אם המשתמש הוא מנהל
     const [isLoading, setIsLoading] = useState(true);
 
     useEffect(() => {
-        const fetchedRoles = getUserRoles();
-        setUserRoles(fetchedRoles);
-        console.log(userRoles)
-        const savedRole = localStorage.getItem("selectedRole");
-        setSelectedRole(savedRole);
-
-        setIsLoading(false);
+        setIsLoading(false); // קובעים שנטען, ללא צורך ב־selectedRole
     }, []);
-
 
     const handleLogoutClick = () => {
         handleLogout();
@@ -69,7 +43,7 @@ const Navbar = ({ isAuthenticated, roles, handleLogout }: NavbarProps) => {
 
                 {isAuthenticated ? (
                     <div className="navbar-links">
-                        {!isLoading && selectedRole === "Admin" && (
+                        {isAdmin && !isLoading && ( // הצגת לינקים למנהל
                             <>
                                 <Button color="inherit" onClick={() => handleNavigation("/admin")}>ניהול</Button>
                                 <Button color="inherit" onClick={() => handleNavigation("/menuitems")}>ניהול תפריט</Button>
@@ -77,7 +51,7 @@ const Navbar = ({ isAuthenticated, roles, handleLogout }: NavbarProps) => {
                             </>
                         )}
 
-                        {!isLoading && selectedRole === "User" && (
+                        {!isAdmin && !isLoading && ( // הצגת לינק למשתמש
                             <Button color="inherit" onClick={() => handleNavigation("/profile")}>👤 פרופיל משתמש</Button>
                         )}
 
@@ -86,8 +60,6 @@ const Navbar = ({ isAuthenticated, roles, handleLogout }: NavbarProps) => {
                 ) : (
                     <Button color="inherit" onClick={() => handleNavigation("/login")}>התחברות</Button>
                 )}
-
-
             </Toolbar>
         </AppBar>
     );

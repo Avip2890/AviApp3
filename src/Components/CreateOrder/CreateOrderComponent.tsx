@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import {useEffect, useRef, useState} from "react";
 import {
     Container, Typography, TextField, Button, MenuItem,
     Select, FormControl, InputLabel, CircularProgress
@@ -30,7 +30,7 @@ const CreateOrderPage = () => {
     const [success, setSuccess] = useState<string | null>(null);
     const [isPaymentSuccess, setIsPaymentSuccess] = useState(false);
 
-    const menuItemApi = new MenuItemApi();
+    const menuItemApiRef = useRef(new MenuItemApi());
     const orderApi = new OrderApi();
 
     useEffect(() => {
@@ -46,14 +46,15 @@ const CreateOrderPage = () => {
 
         const fetchMenuItems = async () => {
             try {
-                const response = await menuItemApi.getMenuItems();
+                const response = await menuItemApiRef.current.getMenuItems();
+
                 setMenuItems(response.data ?? []);
             } catch (err) {
                 setError("❌ לא ניתן לטעון את התפריט." + err);
             }
         };
 
-        fetchMenuItems();
+        void fetchMenuItems();
     }, []);
 
     useEffect(() => {
@@ -112,14 +113,12 @@ const CreateOrderPage = () => {
         } catch (err) {
             console.error("❌ שגיאה ביצירת הזמנה:", err);
             setError("❌ לא ניתן ליצור את ההזמנה. בדוק את הנתונים ונסה שוב.");
-        } finally {
-            setLoading(false);
         }
 
     };
 
     const handlePaymentSuccess = () => {
-        setIsPaymentSuccess(false);
+        setIsPaymentSuccess(true);
         setSuccess("✅ התשלום בוצע בהצלחה!");
     };
 

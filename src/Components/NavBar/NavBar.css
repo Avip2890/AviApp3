@@ -1,5 +1,5 @@
 .navbar {
-    background-color: #1976d2; /* 💙 צבע רקע */
+    background: linear-gradient(135deg, #ff7043, #ff9800);
 }
 
 .navbar-toolbar {
@@ -12,9 +12,28 @@
     flex-grow: 1;
     cursor: pointer;
     font-weight: bold;
+    color: #ffffff;
+    text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.2);
+    transition: color 0.3s ease;
+}
+
+.navbar-title:hover {
+    color: #ffeb3b;
 }
 
 .navbar-links {
     display: flex;
-    gap: 10px; /* רווח בין הכפתורים */
+    gap: 10px;
+}
+
+.navbar-links button {
+    font-weight: bold;
+    background: transparent;
+    color: #ffffff;
+    transition: color 0.3s ease, transform 0.2s ease;
+}
+
+.navbar-links button:hover {
+    color: #ffeb3b;
+    transform: scale(1.05);
 }

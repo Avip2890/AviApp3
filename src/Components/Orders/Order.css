@@ -1,12 +1,11 @@
 .orders-container {
     margin-top: 40px;
-    background-color: #f8f9fc;
     padding: 20px;
     border-radius: 8px;
 }
 
 .orders-title {
-    color: #2c3e50;
+    color: #ff5722;
     font-weight: bold;
     text-align: center;
     margin-bottom: 20px;
@@ -14,7 +13,6 @@
 
 .orders-paper {
     padding: 16px;
-    background-color: #ffffff;
     border-radius: 12px;
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
 }
@@ -23,7 +21,7 @@
     display: flex;
     justify-content: space-between;
     align-items: center;
-    background: linear-gradient(to right, #e0f7fa, #fce4ec);
+    background: linear-gradient(135deg, #D6EFD8, #80AF81, #508D4E, #63b863);
     padding: 12px;
     border-radius: 8px;
     margin-bottom: 12px;
@@ -108,7 +106,6 @@
 .order-details {
     margin-top: 10px;
     padding: 10px;
-    background-color: #f3f4f6;
     border-radius: 8px;
 }
 

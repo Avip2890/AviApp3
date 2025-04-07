@@ -9,11 +9,11 @@ import useIsAdmin from "../../store/useIsAdmin.ts";
 
 const Navbar = ({ isAuthenticated, handleLogout }: NavbarProps) => {
     const navigate = useNavigate();
-    const isAdmin = useIsAdmin(); // השגת מידע אם המשתמש הוא מנהל
+    const isAdmin = useIsAdmin();
     const [isLoading, setIsLoading] = useState(true);
 
     useEffect(() => {
-        setIsLoading(false); // קובעים שנטען, ללא צורך ב־selectedRole
+        setIsLoading(false);
     }, []);
 
     const handleLogoutClick = () => {
@@ -43,7 +43,7 @@ const Navbar = ({ isAuthenticated, handleLogout }: NavbarProps) => {
 
                 {isAuthenticated ? (
                     <div className="navbar-links">
-                        {isAdmin && !isLoading && ( // הצגת לינקים למנהל
+                        {isAdmin && !isLoading && (
                             <>
                                 <Button color="inherit" onClick={() => handleNavigation("/admin")}>ניהול</Button>
                                 <Button color="inherit" onClick={() => handleNavigation("/menuitems")}>ניהול תפריט</Button>
@@ -51,7 +51,7 @@ const Navbar = ({ isAuthenticated, handleLogout }: NavbarProps) => {
                             </>
                         )}
 
-                        {!isAdmin && !isLoading && ( // הצגת לינק למשתמש
+                        {!isAdmin && !isLoading && (
                             <Button color="inherit" onClick={() => handleNavigation("/profile")}>👤 פרופיל משתמש</Button>
                         )}
 

@@ -1,0 +1,54 @@
+.payment-form {
+    max-width: 500px;
+    margin: 0 auto;
+    text-align: right;
+    padding: 30px;
+    border: 2px solid #ffcc80;
+    border-radius: 15px;
+    font-family: 'Heebo', sans-serif;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.15);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.payment-form:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+}
+
+.payment-title {
+    font-size: 26px;
+    font-weight: bold;
+    text-align: center;
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.2);
+    margin-bottom: 20px;
+}
+
+.payment-input {
+    direction: rtl;
+    text-align: right;
+    border-radius: 8px;
+}
+
+.error-message {
+    font-size: 16px;
+    color: #d32f2f;
+    margin-bottom: 10px;
+    font-weight: bold;
+}
+
+.submit-button {
+    margin-top: 20px;
+    background-color: #ae320b !important;
+    color: white !important;
+    font-size: 18px;
+    font-weight: bold;
+    border-radius: 8px;
+    padding: 10px;
+    transition: background-color 0.3s ease, transform 0.2s ease;
+}
+
+.submit-button:hover {
+    background-color: #e64a19 !important;
+    transform: scale(1.05);
+}
+

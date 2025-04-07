@@ -6,6 +6,9 @@ import {
 import { OrderApi, MenuItemApi, MenuItemDto, OrderDto } from "../../open-api";
 import * as React from "react";
 import { jwtDecode } from "jwt-decode";
+import PaymentForm from "../Payment/PaymentForm.tsx";
+import "./CreateOrder.css";
+import { sendOrderEmail } from '../../Service/SendOrderEmail.ts';
 
 interface JwtPayloadWithRoles {
     Id: string;
@@ -21,9 +24,11 @@ const CreateOrderPage = () => {
     const [orderDate, setOrderDate] = useState<string>("");
     const [menuItems, setMenuItems] = useState<MenuItemDto[]>([]);
     const [selectedMenuItems, setSelectedMenuItems] = useState<number[]>([]);
+    const [totalPrice, setTotalPrice] = useState<number>(0);
     const [loading, setLoading] = useState<boolean>(false);
     const [error, setError] = useState<string | null>(null);
     const [success, setSuccess] = useState<string | null>(null);
+    const [isPaymentSuccess, setIsPaymentSuccess] = useState(false);
 
     const menuItemApi = new MenuItemApi();
     const orderApi = new OrderApi();
@@ -39,18 +44,25 @@ const CreateOrderPage = () => {
             }
         }
 
-        // ✅ החזרת קריאת התפריט שנעלמה קודם
         const fetchMenuItems = async () => {
             try {
                 const response = await menuItemApi.getMenuItems();
                 setMenuItems(response.data ?? []);
             } catch (err) {
-                setError(  "❌ לא ניתן לטעון את התפריט." + err);
+                setError("❌ לא ניתן לטעון את התפריט." + err);
             }
         };
 
         fetchMenuItems();
     }, []);
+
+    useEffect(() => {
+        const calculatedTotalPrice = selectedMenuItems.reduce((total, itemId) => {
+            const menuItem = menuItems.find((item) => item.id === itemId);
+            return menuItem ? total + (menuItem.price ?? 0) : total;
+        }, 0);
+        setTotalPrice(calculatedTotalPrice);
+    }, [selectedMenuItems, menuItems]);
 
     const handleSubmit = async (event: React.FormEvent) => {
         event.preventDefault();
@@ -74,6 +86,24 @@ const CreateOrderPage = () => {
 
         try {
             await orderApi.addOrder({ orderDto: orderData });
+            const orderedItems = selectedMenuItems.map((id) => {
+                const item = menuItems.find((m) => m.id === id);
+                return {
+                    name: item?.name || "פריט לא ידוע",
+                    price: item?.price ?? 0,
+                    imageUrl: item?.imageUrl ?? "",
+                };
+            });
+
+
+            await sendOrderEmail({
+                email,
+                phone,
+                customerName,
+                items: orderedItems,
+                total: totalPrice,
+            });
+
             setSuccess("✅ ההזמנה נוצרה בהצלחה!");
             setCustomerName("");
             setPhone("");
@@ -85,6 +115,12 @@ const CreateOrderPage = () => {
         } finally {
             setLoading(false);
         }
+
+    };
+
+    const handlePaymentSuccess = () => {
+        setIsPaymentSuccess(false);
+        setSuccess("✅ התשלום בוצע בהצלחה!");
     };
 
     return (
@@ -146,10 +182,17 @@ const CreateOrderPage = () => {
                     </Select>
                 </FormControl>
 
-                <Button type="submit" variant="contained" color="primary" className="submit-button" disabled={loading}>
+                <Typography variant="h6" className="total-price">
+                    סך הכל לתשלום: ₪{totalPrice.toFixed(2)}
+                </Typography>
+
+                <PaymentForm onPaymentSuccess={handlePaymentSuccess} />
+
+                <Button type="submit" variant="contained" color="primary" className="submit-button" disabled={loading || !isPaymentSuccess}>
                     {loading ? <CircularProgress size={24} /> : "📩 שליחת הזמנה"}
                 </Button>
             </form>
+
         </Container>
     );
 };

@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
 import { CssBaseline, Container } from "@mui/material";
 import { jwtDecode } from "jwt-decode";
-
+import './index.css';
 import Login from "./Components/Login/LoginComponent.tsx";
 import Orders from "./Components/Orders/OrderComponent.tsx";
 import AdminDashboard from "./Components/AdminDashboard/AdminDashBoardComponent.tsx";

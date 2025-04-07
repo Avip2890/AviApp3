@@ -1,11 +1,3 @@
-body {
-    background: linear-gradient(135deg, #ffe0b2, #f8bbd0, #b2ebf2, #dcedc8);
-    background-size: 400% 400%;
-    animation: gradientFlow 15s ease infinite;
-    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-}
-
-
 
 .home-container {
     text-align: center;
@@ -16,14 +8,15 @@ body {
 .home-title {
     font-weight: bold;
     margin-bottom: 10px;
-    font-size: 32px;
-    color: #1a237e;
-    text-shadow: 1px 1px 2px #c5cae9;
+    font-size: 36px;
+    color: #d84315;
+    text-shadow: 2px 2px 5px rgba(0, 0, 0, 0.1);
 }
 
 .home-subtitle {
     margin-bottom: 30px;
-    color: #555;
+    color: #6d4c41;
+    font-size: 18px;
 }
 
 .button-container {
@@ -33,71 +26,60 @@ body {
     margin-top: 30px;
 }
 
+.button-container button {
+    padding: 12px 25px;
+    border-radius: 8px;
+    font-size: 16px;
+    font-weight: bold;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
 .green-button {
     background-color: #4CAF50 !important;
     color: white !important;
-    font-size: 16px;
 }
 
 .yellow-button {
     background-color: #FFC107 !important;
     color: black !important;
-    font-size: 16px;
 }
 
 .blue-button {
-    background-color: #2196F3 !important;
+    background-color: #FF7043 !important;
     color: white !important;
-    font-size: 16px;
 }
 
-.green-button:hover {
-    background-color: #388E3C !important;
-}
-
-.yellow-button:hover {
-    background-color: #FFB300 !important;
-}
-
+.green-button:hover,
+.yellow-button:hover,
 .blue-button:hover {
-    background-color: #1976D2 !important;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
 }
+
 
 .info-card {
     margin-top: 20px;
     padding: 25px;
-    background: linear-gradient(to right, #fceabb, #f8f9fa); /* מעבר צבעים עדין */
     border-radius: 15px;
-    text-align: left;
+    text-align: right;
     max-width: 600px;
     margin-left: auto;
     margin-right: auto;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1); /* צל מודרני */
+    box-shadow: 0 6px 15px rgba(0, 0, 0, 0.1);
     transition: transform 0.3s ease, box-shadow 0.3s ease;
 }
 
-
 .info-card:hover {
-    transform: translateY(-3px);
-    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
-}
-
-
-.info-title {
-    font-weight: bold;
-    margin-bottom: 10px;
+    transform: translateY(-5px);
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
 }
 
 .info-text {
     font-size: 18px;
-    color: #333;
-    text-align: right;
+    color: #4e342e;
     direction: rtl;
-    background-color: #ffffffcc;
-    border-radius: 15px;
+    border-radius: 10px;
     box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
     padding: 20px;
     line-height: 1.8;
-    transition: transform 0.3s ease, box-shadow 0.3s ease;
 }
-

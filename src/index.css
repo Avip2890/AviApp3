@@ -1,17 +1,17 @@
 body {
-  background: linear-gradient(135deg, #D6EFD8, #80AF81, #508D4E, #1A5319);
+  background: linear-gradient(135deg, #FFF3E0, #FFD180, #FF8A65, #F4511E);
   background-size: 400% 400%;
   animation: gradientFlow 12s ease infinite;
   font-family: 'Heebo', sans-serif;
-  color: #333;
+  color: #3E2723;
 }
 
 button {
   font-size: 18px;
   font-weight: bold;
   border-radius: 8px;
-  background-color: #ff5722;
-  color: white;
+  background-color: #D4AF37 ;
+  color: #C62828 ;
   padding: 10px 20px;
   border: none;
   cursor: pointer;

@@ -67,7 +67,6 @@ const CreateOrderPage = () => {
 
     const handleSubmit = async (event: React.FormEvent) => {
         event.preventDefault();
-        setLoading(true);
         setError(null);
         setSuccess(null);
 

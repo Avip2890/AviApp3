@@ -2,59 +2,86 @@
     margin-top: 20px;
     text-align: center;
     font-family: 'Heebo', sans-serif;
+    background-color: #FFF8E1;
+    padding: 30px 20px;
+    border-radius: 20px;
+    box-shadow: 0 6px 15px rgba(0, 0, 0, 0.08);
 }
 
 .dashboard-title {
     font-weight: bold;
-    color: #ff5722;
-    text-align: center;
-    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.2);
-}
-
-.dashboard-subtitle {
-    margin-bottom: 20px;
-    color: #ffcc33;
+    color: #F4511E;
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.1);
+    margin-bottom: 25px;
+    font-size: 32px;
 }
 
 .dashboard-stats {
     margin-top: 20px;
+    flex-wrap: wrap;
+    gap: 20px;
 }
 
 .dashboard-card {
-    background: #ffab40;
-    box-shadow: 2px 2px 10px rgba(0, 0, 0, 0.1);
-    padding: 15px;
-    text-align: center;
-    border-radius: 10px;
-    font-family: 'Heebo', sans-serif;
-    color: #333;
+    background: linear-gradient(135deg, #FFD180, #FFAB40);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    border-radius: 16px;
+    padding: 20px;
+    min-width: 200px;
+    flex: 1;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.dashboard-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
+}
+
+.dashboard-card h6 {
+    color: #5D4037;
+    margin-bottom: 10px;
+}
+
+.dashboard-card h4 {
+    color: #BF360C;
 }
 
 .dashboard-actions {
-    margin-top: 30px;
+    margin-top: 40px;
+    gap: 20px;
+    flex-wrap: wrap;
 }
 
-.dashboard-button {
-    font-size: 18px;
+.dashboard-actions button {
+    font-size: 16px;
     font-weight: bold;
-    font-family: 'Heebo', sans-serif;
-    border-radius: 8px;
-    background-color: #ff5722;
-    color: white;
-    padding: 10px 20px;
-    border: none;
-    cursor: pointer;
-    transition: background-color 0.3s ease;
+    border-radius: 10px;
+    padding: 12px 24px;
+    transition: background-color 0.3s ease, transform 0.2s ease;
 }
 
-.dashboard-button:hover {
-    background-color: #e64a19;
+.dashboard-actions button:hover {
+    transform: scale(1.05);
 }
-
 
 .preview-image {
     width: 100%;
-    max-height: 150px;
+    max-height: 160px;
     object-fit: cover;
-    border-radius: 8px;
+    border-radius: 10px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.MuiDialog-paper {
+    border-radius: 16px !important;
+    padding: 20px;
+    background: #FFFDE7;
+}
+.form-field {
+    margin-bottom: 15px;
+    border-radius: 10px;
+}
+.MuiDialogActions-root button {
+    border-radius: 10px;
+    font-weight: bold;
 }

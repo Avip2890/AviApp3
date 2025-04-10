@@ -9,6 +9,7 @@ const HomePage = () => {
     const isLoggedIn = !!localStorage.getItem("token");
 
     return (
+        <>
         <Container className="home-container">
             <Typography variant="h3" className="home-title"> AviApp - ברוך הבא ל</Typography>
             <Typography variant="h5" className="home-subtitle">ניהול הזמנות, משתמשים ועסק במקום אחד</Typography>
@@ -40,7 +41,11 @@ const HomePage = () => {
                     ℹ️ מידע על האתר
                 </Button>
             </div>
-
+            <img
+                src="/public/orderImg.jpg"
+                alt="אוכל חם ומגרה"
+                className="home-image"
+            />
             {showInfo && (
                 <Card className="info-card">
                     <CardContent>
@@ -58,6 +63,21 @@ const HomePage = () => {
                 </Card>
             )}
         </Container>
+
+            <footer className="footer">
+                <div className="footer-content">
+                    <div className="footer-info">
+                        <span>📞 טלפון: 052-1234567</span>
+                        <span>📧 מייל: support@aviapp.com</span>
+                        <span>🕒 שעות פעילות: א'-ה' 09:00–17:00</span>
+                    </div>
+                    <div className="footer-copy">
+                        © {new Date().getFullYear()} AviApp. כל הזכויות שמורות.
+                    </div>
+                </div>
+            </footer>
+
+        </>
     );
 };
 

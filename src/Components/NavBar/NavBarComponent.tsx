@@ -31,8 +31,8 @@ const Navbar = ({ isAuthenticated, handleLogout }: NavbarProps) => {
     };
 
     return (
-        <AppBar position="static" className="navbar">
-            <Toolbar className="navbar-toolbar">
+        <AppBar position="static" className="navbar" color="transparent" elevation={0}>
+        <Toolbar className="navbar-toolbar">
                 <Typography
                     variant="h6"
                     className="navbar-title"

@@ -14,7 +14,7 @@ const MenuPage = () => {
     const [error, setError] = useState<string | null>(null);
     const [editingItem, setEditingItem] = useState<MenuItemDto | null>(null);
     const [openEditDialog, setOpenEditDialog] = useState<boolean>(false);
-    const isAdmin = useIsAdmin(); // ✅ החלפה במקום שימוש ב־useState
+    const isAdmin = useIsAdmin();
 
     const menuItemApi = new MenuItemApi();
 

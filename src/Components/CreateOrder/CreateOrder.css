@@ -3,66 +3,59 @@
     margin-top: 50px;
 }
 
-.form-title {
-    font-size: 26px;
-    font-weight: bold;
-    color: #ffffff;
-    text-align: center;
-    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.2);
-    margin-bottom: 30px;
-}
-
 .create-order-form {
     max-width: 500px;
-    text-align: center;
     padding: 30px;
-    border: 2px solid #ffcc80;
     border-radius: 15px;
-    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.15);
-    font-family: 'Heebo', sans-serif;
     margin: 30px auto 0;
+    background-color: rgba(255, 243, 224, 0.95);
+    box-shadow: 0 8px 20px rgba(244, 81, 30, 0.25);
+    border: 2px solid #FFD180;
+
 }
 
 .create-order-form:hover {
-    transform: translateY(-3px);
-    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+    box-shadow: 0 12px 30px rgba(244, 81, 30, 0.35);
+}
+
+.submit-button {
+    background-color: #D4AF37 !important;
+    color: #C62828 !important;
+    font-size: 18px;
+    font-weight: bold;
+    border-radius: 10px;
+    padding: 12px;
+    width: 100%;
+    max-width: 300px;
+    margin: 30px auto 0;
+    display: block;
+
+}
+
+.submit-button:hover {
+    background-color: #C62828 !important;
+    color: #FFF3E0 !important;
 }
 
 .error-message {
     font-size: 16px;
-    color: #d32f2f;
-    margin-bottom: 15px;
+    color: #C62828;
+    background-color: #FFEBEE;
+    padding: 10px;
+    border-radius: 8px;
     font-weight: bold;
 }
 
 .success-message {
     font-size: 16px;
-    color: #2e7d32;
-    margin-bottom: 15px;
-    font-weight: bold;
-}
-
-.submit-button {
-    background-color: #ff5722 !important;
-    color: white !important;
-    font-size: 18px;
-    font-weight: bold;
-    border-radius: 8px;
+    color: #2E7D32;
+    background-color: #E8F5E9;
     padding: 10px;
-    width: 100%;
-    max-width: 300px;
-    display: block;
-    margin: 20px auto 0;
-}
-
-.submit-button:hover {
-    background-color: #5fa822 !important;
+    border-radius: 8px;
+    font-weight: bold;
 }
 
 .create-order-form .MuiTextField-root,
 .create-order-form .MuiFormControl-root {
     margin-bottom: 20px;
 }
-.create-order-form .submit-button {
-     margin-top: 30px;
- }

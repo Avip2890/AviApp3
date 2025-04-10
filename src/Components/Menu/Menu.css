@@ -1,104 +1,128 @@
 .menu-container {
-    max-width: 800px;
-    margin: auto;
+    max-width: 900px;
+    margin: 40px auto;
     text-align: center;
-    padding: 20px;
-    border-radius: 12px;
-    box-shadow: 0 0 15px rgba(0, 0, 0, 0.08);
+    padding: 30px;
+    border-radius: 20px;
+    background-color: #fff8f0;
+    box-shadow: 0 6px 18px rgba(0, 0, 0, 0.1);
 }
 
 .menu-title {
-    font-size: 2rem;
+    font-size: 2.5rem;
     font-weight: bold;
-    color: #ff5722;
-    margin-bottom: 20px;
+    color: #D84315;
+    margin-bottom: 30px;
+    text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.1);
 }
 
 .menu-loading {
     display: block;
-    margin: 20px auto;
+    margin: 30px auto;
 }
 
-.menu-error, .menu-no-data {
-    color: #e53935;
+.menu-error,
+.menu-no-data {
+    color: #C62828;
     font-weight: bold;
-    margin-top: 20px;
+    margin-top: 25px;
 }
 
 .menu-paper {
-    padding: 20px;
-    border-radius: 10px;
-    box-shadow: 0 3px 12px rgba(0, 0, 0, 0.06);
+    padding: 25px;
+    border-radius: 18px;
+    background-color: #ffffff;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
 }
 
 .menu-item {
     display: flex;
-    flex-direction: column;
-    align-items: flex-start;
-    padding: 15px 20px;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 20px;
+    padding: 20px;
+    border-radius: 16px;
     transition: background-color 0.3s ease;
-    border-radius: 8px;
+    background-color: #fff3e0;
+    margin-bottom: 16px;
 }
 
 .menu-item:hover {
-    background-color: #f4f6f8;
+    background-color: #ffe0b2;
+}
+
+.menu-item-image {
+    width: 150px;
+    height: 150px;
+    object-fit: cover;
+    border-radius: 14px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    flex-shrink: 0;
 }
 
 .menu-item-name {
-    font-size: 1.2rem;
+    font-size: 1.4rem;
     font-weight: bold;
-    color: #37474f;
+    color: #5D4037;
 }
 
 .menu-item-description {
-    font-size: 0.95rem;
-    color: #607d8b;
+    font-size: 1rem;
+    color: #6D4C41;
     margin-top: 5px;
 }
 
 .menu-item-price {
-    font-size: 1rem;
+    font-size: 1.1rem;
     font-weight: bold;
-    color: #2e7d32;
-    margin-top: 5px;
+    color: #2E7D32;
+    margin-top: 8px;
 }
 
 .menu-item-status {
     display: flex;
     align-items: center;
-    gap: 10px;
+    gap: 12px;
+    justify-content: center;
     margin-top: 10px;
 }
 
 .available-chip {
-    background-color: #66bb6a !important;
+    background-color: #81C784 !important;
     color: white !important;
-    border-radius: 8px;
+    font-weight: bold;
+    border-radius: 10px;
 }
 
 .unavailable-chip {
-    background-color: #ef5350 !important;
+    background-color: #E57373 !important;
     color: white !important;
-    border-radius: 8px;
+    font-weight: bold;
+    border-radius: 10px;
 }
 
 .menu-item-actions {
     display: flex;
-    gap: 10px;
-    margin-top: 10px;
+    justify-content: center;
+    gap: 12px;
+    margin-top: 12px;
+    flex-wrap: wrap;
 }
 
 .menu-item-actions button {
-    font-size: 0.9rem;
-    border-radius: 6px !important;
-    transition: background-color 0.3s ease;
+    font-size: 0.95rem;
+    font-weight: bold;
+    border-radius: 10px !important;
+    padding: 6px 14px;
+    transition: all 0.3s ease;
 }
 
-.menu-item-image {
-    width: 200px;
-    height: 200px;
-    object-fit: cover;
-    border-radius: 10px;
-    margin-inline-end: 16px;
-    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
+.preview-image {
+    width: 100%;
+    max-width: 300px;
+    height: auto;
+    border-radius: 14px;
+    margin-top: 10px;
+    box-shadow: 0 3px 8px rgba(0, 0, 0, 0.1);
 }

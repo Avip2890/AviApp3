@@ -1,6 +1,12 @@
 .navbar {
-    background: linear-gradient(135deg, #ff7043, #ff9800);
+    background: linear-gradient(135deg, #672f1e, #534025);
+    background-size: 200% 200%;
+    animation: navbarFlow 10s ease infinite;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
+
 }
+
+
 
 .navbar-toolbar {
     display: flex;
@@ -12,13 +18,13 @@
     flex-grow: 1;
     cursor: pointer;
     font-weight: bold;
-    color: #ffffff;
+    color: #a51818;
     text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.2);
     transition: color 0.3s ease;
 }
 
 .navbar-title:hover {
-    color: #ffeb3b;
+    color: #0c0c05;
 }
 
 .navbar-links {
@@ -29,11 +35,11 @@
 .navbar-links button {
     font-weight: bold;
     background: transparent;
-    color: #ffffff;
+    color: #a51717;
     transition: color 0.3s ease, transform 0.2s ease;
 }
 
 .navbar-links button:hover {
-    color: #ffeb3b;
+    color: #0e0707;
     transform: scale(1.05);
 }
